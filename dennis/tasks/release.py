@@ -33,9 +33,6 @@ class ReleaseTask(Task):
 
         release_pr = self.github_repo.get_pull(pr_id)
 
-        import pdb
-        pdb.set_trace()
-
         # Merge PR into master
         if release_pr.mergeable and not release_pr.is_merged():
             _log.info('Pull request "{}" in {} is mergeable, merging'.format(
@@ -67,16 +64,6 @@ class ReleaseTask(Task):
         )
 
         # Merge master into develop
-        mergeback_pr = self.github_repo.create_pull(
-            'Master back into Develop', '',
-            'develop', 'master'
-        )
-        if mergeback_pr.mergeable:
-            _log.info('Pull request "{}" in {} is mergeable, merging'.format(
-                mergeback_pr.title,
-                self.repo_name
-            ))
-            self._merge(mergeback_pr)
 
     def _get_release_changelog(
         self, last_tag, new_tag, repo, owner
