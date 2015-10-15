@@ -68,8 +68,16 @@ class Task:
         self.pr_id_path = os.path.join(
             self.repo.working_dir, self.pr_id_name
         )
+
         self.meta['last_tag'] = self._get_latest_tag()
+
+        if not self.meta['last_tag']:
+            self.meta['last_tag_name'] = None
+        else:
+            self.meta['last_tag_name'] = self.meta['last_tag'].name
+
         self.meta['release_branch'] = self._get_current_release()
+
         if self.meta['release_branch']:
             self.meta['release_branch_name'] = self.meta[
                 'release_branch'
