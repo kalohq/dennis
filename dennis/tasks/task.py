@@ -293,7 +293,7 @@ class Task:
         )[-1]
 
         if not any(last_commit.get_statuses()):
-            return True
+            return 'passed'
 
         statuses = list(last_commit.get_statuses())
         statuses.sort(
