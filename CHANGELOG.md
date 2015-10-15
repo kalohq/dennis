@@ -1,3 +1,15 @@
+## [v0.1.7](https://github.com/lystable/dennis/tree/v0.1.7) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.1.6...v0.1.7)
+
+**Added**:
+
+- Release v0.1.6 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#16](https://github.com/lystable/dennis/pull/16/))
+
+
+
 ## [v0.1.6](https://github.com/lystable/dennis/tree/v0.1.6) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.1.5...v0.1.6)
