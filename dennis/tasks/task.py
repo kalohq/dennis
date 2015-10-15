@@ -6,7 +6,6 @@ import github
 import logging
 
 from .utils import version_key, DennisException
-from .repo import DirectoryRepoProvider
 
 _log = logging.getLogger(__name__)
 
@@ -39,30 +38,31 @@ class Task:
     changelog_name = 'CHANGELOG.md'
     changelog_path = None
 
-    pr_id_name = '.release_pr_id'
-    pr_id_path = None
-
     repo_provider = None
 
+    # Git object
     repo = None
 
+    # GitHub object
     github_repo = None
 
+    # Repository owner name
     repo_owner = None
 
+    # Repository name
     repo_name = None
 
+    # Whether this is a draft run
     draft = False
 
     meta = {}
 
     def __init__(
         self, github_user=None,
-        github_token=None, project_dir=None,
+        github_token=None, project_dir=os.getcwd(),
         draft=False, **kwargs
     ):
-        self.repo_provider = DirectoryRepoProvider(project_dir)
-        self.repo = self.repo_provider.get()
+        self.repo = git.Repo(project_dir)
 
         self.github_user = github_user
         self.github_token = github_token
@@ -78,13 +78,10 @@ class Task:
         ).get_repo(self.repo_name)
 
         self.repo_owner = self.github_repo.owner.login
+        self.repo_name = self.github_repo.name
 
         # Checkout latest changes for this repo
         self._checkout_and_pull('develop')
-
-        self.pr_id_path = os.path.join(
-            self.repo.working_dir, self.pr_id_name
-        )
 
         self.meta['last_tag'] = self._get_latest_tag()
 

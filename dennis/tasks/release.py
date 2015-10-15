@@ -54,7 +54,7 @@ class ReleaseTask(Task):
         last_commit_id = self.repo.heads.master.commit.hexsha
         changelog = self._get_release_changelog(
             self.meta['last_tag_name'], self.meta['release_tag_name'],
-            self.repo_name.split('/')[-1], self.repo_owner
+            self.repo_name, self.repo_owner
         )
 
         # Not making releases draft-able as this introduces complication

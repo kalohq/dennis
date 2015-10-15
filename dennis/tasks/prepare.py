@@ -169,7 +169,7 @@ class PrepareTask(Task):
             'sawyer', '-u',
             self.github_user, '-q',
             '-t', self.github_token,
-            self.repo_name,
+            '{}/{}'.format(self.repo_owner, self.repo_name),
             self.meta['last_tag_name'] or 'v0.0.0',
             new_version
         ]
