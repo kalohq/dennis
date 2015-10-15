@@ -21,7 +21,7 @@ class ReleaseTask(Task):
 
     def run(self):
         # Is there a release?
-        if not self.meta['release_branch_name']:
+        if not self.release_branch_name:
             _log.error('Could not find any ongoing release for {}'.format(
                 self.repo_name
             ))
@@ -29,18 +29,17 @@ class ReleaseTask(Task):
 
         # Checkout and pull the release branch
         self._checkout_and_pull(
-            self.meta['release_branch_name']
+            self.release_branch_name
         )
 
-        release_pr = self.meta['release_pr']
-
         # Merge PR into master
-        if not release_pr.is_merged():
+        if not self.release_pr.is_merged():
             _log.info('Pull request "{}" in {} is mergeable, merging'.format(
-                release_pr.title,
+                self.release_pr.title,
                 self.repo_name
             ))
-            self._merge(release_pr, wait_for_minutes=self.wait_for_minutes)
+            self._merge(
+                self.release_pr, wait_for_minutes=self.wait_for_minutes)
 
         # Publish release
         #
@@ -53,7 +52,7 @@ class ReleaseTask(Task):
         # ):
         last_commit_id = self.repo.heads.master.commit.hexsha
         changelog = self._get_release_changelog(
-            self.meta['last_tag_name'], self.meta['release_tag_name'],
+            self.last_tag_name, self.release_tag_name,
             self.repo_name, self.repo_owner
         )
 
@@ -61,12 +60,12 @@ class ReleaseTask(Task):
         # when handling the real release
         release_url = 'N/A'
         if (
-            not self.meta['release'] and
+            not self.release and
             not self.draft
         ):
             release = self.github_repo.create_git_tag_and_release(
-                self.meta['release_tag_name'],
-                '', release_pr.title,
+                self.release_tag_name,
+                '', self.release_pr.title,
                 changelog, last_commit_id, 'commit'
             )
             release_url = release.raw_data['html_url']
@@ -80,7 +79,7 @@ class ReleaseTask(Task):
         _log.info(
             '{} is merged into master, and develop has'
             ' been updated. \n\nSee the latest published release @ {}'.format(
-                release_pr.title,
+                self.release_pr.title,
                 release_url)
         )
 

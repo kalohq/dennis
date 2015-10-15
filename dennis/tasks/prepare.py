@@ -44,13 +44,13 @@ class PrepareTask(Task):
         commit_required = False
 
         _log.info('The last tag in this repo is {}'.format(
-            self.meta['last_tag']
+            self.last_tag_name
         ))
 
         # If remote branch exists
-        if self.meta.get('release_branch'):
+        if self.release_branch:
             _log.info('A release branch seems to be ongoing already {}'.format(
-                self.meta['release_branch'].name
+                self.release_branch_name
             ))
             _log.info(
                 '\n\nPlease checkout that branch'
@@ -65,13 +65,13 @@ class PrepareTask(Task):
         # Upgrade based on given version type
         if new_version is None and self.new_version_type is not None:
             new_version = self._get_version_upgrade_choices(
-                self.meta['last_tag_name']
+                self.last_tag_name
             )[self.new_version_type]
 
         # Upgrade based on input version type
         if new_version is None:
             choices = self._get_version_upgrade_choices(
-                self.meta['last_tag_name']
+                self.last_tag_name
             )
             ordered_choices = RELEASE_TYPES
             new_version_type = text_input(
@@ -116,7 +116,7 @@ class PrepareTask(Task):
             output, success, return_code = run_command(
                 [
                     'bash', '-x', self.release_script_path,
-                    self.meta['last_tag_name'],
+                    self.last_tag_name,
                     new_version
                 ],
                 cwd=self.repo.working_dir
@@ -170,7 +170,7 @@ class PrepareTask(Task):
             self.github_user, '-q',
             '-t', self.github_token,
             '{}/{}'.format(self.repo_owner, self.repo_name),
-            self.meta['last_tag_name'] or 'v0.0.0',
+            self.last_tag_name or 'v0.0.0',
             new_version
         ]
 

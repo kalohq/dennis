@@ -55,7 +55,22 @@ class Task:
     # Whether this is a draft run
     draft = False
 
-    meta = {}
+    # Last tag in this repo (mandatory)
+    last_tag = None
+
+    # Current release branch (if any)
+    release_branch = None
+
+    # Current release PR (if any)
+    release_pr = None
+
+    # Current GitHub release (if any)
+    release = None
+
+    # Some shortcuts
+    last_tag_name = None
+    release_branch_name = None
+    release_tag_name = None
 
     def __init__(
         self, github_user=None,
@@ -83,35 +98,28 @@ class Task:
         # Checkout latest changes for this repo
         self._checkout_and_pull('develop')
 
-        self.meta['last_tag'] = self._get_latest_tag()
+        self.last_tag = self._get_latest_tag()
 
-        if not self.meta['last_tag']:
-            self.meta['last_tag_name'] = None
-        else:
-            self.meta['last_tag_name'] = self.meta['last_tag'].name
+        if not self.last_tag:
+            raise DennisException(
+                'dennis cannot yet handle projects without at least'
+                ' one tag, sorry!'
+            )
+
+        self.last_tag_name = self.last_tag.name
 
         _log.info('Searching for ongoing releases in {}...'.format(
             self.repo_name
         ))
-        self.meta['release_branch'] = self._get_open_release_branch()
+        self.release_branch = self._get_open_release_branch()
 
-        if self.meta['release_branch']:
+        if self.release_branch:
             _log.info('Found release branch. Searching for open PR...')
-            self.meta['release_pr'] = self._get_open_release_pr()
-            self.meta['release_branch_name'] = self.meta[
-                'release_branch'
-            ].ref.remote_head
-            self.meta['release_tag_name'] = self.meta[
-                'release_branch'
-            ].name.split('/')[-1]
+            self.release_pr = self._get_open_release_pr()
+            self.release_branch_name = self.release_branch.ref.remote_head
+            self.release_tag_name = self.release_branch.name.split('/')[-1]
             _log.info('Searching for existing GitHub release...')
-            self.meta['release'] = self._get_release_for_tag(
-                self.meta['release_tag_name']
-            )
-        else:
-            self.meta['release_pr'] = None
-            self.meta['release_branch'] = None
-            self.meta['release_branch_name'] = None
+            self.release = self._get_release_for_tag(self.release_tag_name)
 
         self.changelog_path = os.path.join(
             self.repo.working_dir, self.changelog_name
@@ -162,7 +170,7 @@ class Task:
         )
 
         last_version = release_branches[-1].name.split('/')[-1].strip('v')
-        latest_tag_version = self.meta['last_tag'].name.strip('v')
+        latest_tag_version = self.last_tag_name.strip('v')
 
         if version_key(latest_tag_version) < version_key(last_version):
             return release_branches[-1]
