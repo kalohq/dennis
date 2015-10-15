@@ -1,3 +1,18 @@
+## [v0.1.5](https://github.com/lystable/dennis/tree/v0.1.5) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.1.4...v0.1.5)
+
+**Added**:
+
+- Remove PR id commit and tidy up the getting the release state 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#13](https://github.com/lystable/dennis/pull/13/))
+- Release v0.1.4 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#12](https://github.com/lystable/dennis/pull/12/))
+
+
+
 ## [v0.1.4](https://github.com/lystable/dennis/tree/v0.1.4) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.1.3...v0.1.4)
