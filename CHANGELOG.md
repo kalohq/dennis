@@ -1,3 +1,18 @@
+## [v0.1.6](https://github.com/lystable/dennis/tree/v0.1.6) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.1.5...v0.1.6)
+
+**Added**:
+
+- Feature/sort out the build checks 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#15](https://github.com/lystable/dennis/pull/15/))
+- Release v0.1.5 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#14](https://github.com/lystable/dennis/pull/14/))
+
+
+
 ## [v0.1.5](https://github.com/lystable/dennis/tree/v0.1.5) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.1.4...v0.1.5)
