@@ -150,14 +150,9 @@ class PrepareTask(Task):
 
         # Create pull request
         release_pr = self.github_repo.create_pull(
-            'Release {}'.format(new_version), '',
+            self._format_release_pr_name(new_version), '',
             'master', self.repo.active_branch.name
         )
-
-        # Stick the PR ID in the branch, will remove during the release step
-        self._add_pr_id(release_pr.number)
-        self._commit_all('Add PR number')
-        self._push()
 
         # Done
         _log.info(

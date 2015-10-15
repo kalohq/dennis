@@ -32,9 +32,7 @@ class ReleaseTask(Task):
             self.meta['release_branch_name']
         )
 
-        pr_id = self._get_pr_id()
-
-        release_pr = self.github_repo.get_pull(pr_id)
+        release_pr = self.meta['release_pr']
 
         # Merge PR into master
         if not release_pr.is_merged():
@@ -59,24 +57,31 @@ class ReleaseTask(Task):
             self.repo_name.split('/')[-1], self.repo_owner
         )
 
-        release = self.github_repo.create_git_tag_and_release(
-            self.meta['release_tag_name'],
-            '', release_pr.title,
-            changelog, last_commit_id, 'commit',
-            draft=self.draft, prerelease=self.draft
-        )
+        # Not making releases draft-able as this introduces complication
+        # when handling the real release
+        release_url = 'N/A'
+        if (
+            not self.meta['release'] and
+            not self.draft
+        ):
+            release = self.github_repo.create_git_tag_and_release(
+                self.meta['release_tag_name'],
+                '', release_pr.title,
+                changelog, last_commit_id, 'commit'
+            )
+            release_url = release.raw_data['html_url']
 
         # Merge master into develop
-        self.github_repo.merge(
+        self._merge_branches(
             'develop', 'master', '(dennis) Master back into Develop'
         )
 
         # Done
         _log.info(
             '{} is merged into master, and develop has'
-            ' been updated. See the latest published release @ {}'.format(
+            ' been updated. \n\nSee the latest published release @ {}'.format(
                 release_pr.title,
-                release.raw_data['html_url'])
+                release_url)
         )
 
     def _get_release_changelog(

@@ -11,7 +11,11 @@ from .repo import DirectoryRepoProvider
 _log = logging.getLogger(__name__)
 
 
-VERSION_PATTERN = re.compile('v([0-9]+\.)+')
+VERSION_REGEX = 'v([0-9]+\.)+'
+RELEASE_PR_PATTERN = re.compile('Release {}'.format(VERSION_REGEX))
+RELEASE_BRANCH_PATTERN = re.compile(
+    '(origin/)?testrelease/{}'.format(VERSION_REGEX)
+)
 REPO_PATTERN = re.compile('([^/:]+/[^/\.]+)(.git)?$')
 
 
@@ -89,19 +93,28 @@ class Task:
         else:
             self.meta['last_tag_name'] = self.meta['last_tag'].name
 
-        self.meta['release_branch'] = self._get_current_release()
+        _log.info('Searching for ongoing releases in {}...'.format(
+            self.repo_name
+        ))
+        self.meta['release_branch'] = self._get_open_release_branch()
 
         if self.meta['release_branch']:
+            _log.info('Found release branch. Searching for open PR...')
+            self.meta['release_pr'] = self._get_open_release_pr()
             self.meta['release_branch_name'] = self.meta[
                 'release_branch'
             ].ref.remote_head
             self.meta['release_tag_name'] = self.meta[
                 'release_branch'
             ].name.split('/')[-1]
+            _log.info('Searching for existing GitHub release...')
+            self.meta['release'] = self._get_release_for_tag(
+                self.meta['release_tag_name']
+            )
         else:
+            self.meta['release_pr'] = None
             self.meta['release_branch'] = None
             self.meta['release_branch_name'] = None
-            self.meta['pr_id'] = None
 
         self.changelog_path = os.path.join(
             self.repo.working_dir, self.changelog_name
@@ -128,13 +141,16 @@ class Task:
     def _format_release_branch_name(self, version):
         return 'testrelease/{}'.format(version)
 
-    def _get_current_release(self):
+    def _format_release_pr_name(self, version):
+        return 'Release {}'.format(version)
+
+    def _get_open_release_branch(self):
         branches = self.repo.remotes.origin.fetch()
 
         release_branches = [
             b
             for b in branches
-            if re.match(VERSION_PATTERN, b.name.split('/')[-1])
+            if re.match(RELEASE_BRANCH_PATTERN, b.name)
         ]
 
         if not any(release_branches):
@@ -155,6 +171,36 @@ class Task:
             return release_branches[-1]
 
         return None
+
+    def _get_open_release_pr(self):
+        issues = list(self.github_repo.get_issues())
+
+        open_prs = [
+            issue.pull_request
+            for issue in issues
+            if re.match(RELEASE_PR_PATTERN, issue.title)
+        ]
+
+        if not any(open_prs):
+            _log.warn(
+                'No open pull requests found in repo {}'.format(
+                    self.repo_name
+                )
+            )
+            return None
+
+        release_pr_data = open_prs[0].raw_data
+        release_pr_number = int(release_pr_data['url'].split('/')[-1])
+
+        return self.github_repo.get_pull(
+            release_pr_number
+        )
+
+    def _get_release_for_tag(self, tag):
+        try:
+            return self.github_repo.get_release(tag)
+        except:
+            return None
 
     def _checkout_and_pull(self, name):
         _log.info('Checking out and pulling {}'.format(name))
@@ -222,15 +268,17 @@ class Task:
                     )
                 )
 
+    def _merge_branches(self, base, head, message):
+        if not self.draft:
+            self.github_repo.merge(
+                base, head, message
+            )
+
     def _have_checks_passed(self, pull_request):
-        import pdb
-        pdb.set_trace()
-
-    def _add_pr_id(self, pr_id):
-        with open(self.pr_id_path, 'w') as pr_id_file:
-            pr_id_file.write(str(pr_id))
-        self.repo.index.add([self.pr_id_path])
-
-    def _get_pr_id(self):
-        with open(self.pr_id_path, 'r') as pr_id_file:
-            return int(pr_id_file.read().strip())
+        last_commit = list(
+            pull_request.get_commits()
+        )[-1]
+        return all([
+            status.state == 'passed'
+            for status in last_commit.get_statuses()
+        ])
