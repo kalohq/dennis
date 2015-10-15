@@ -39,8 +39,7 @@ def main():
     parser.add_argument(
         '--version',
         default=None,
-        choices=tasks.RELEASE_TYPES,
-        help='Release version. Overrides --type.'
+        help='Release version in the format vX.Y.Z. Overrides --type.'
     )
 
     parser.add_argument(
@@ -110,5 +109,3 @@ def main():
     )
 
     task.run()
-
-main()
