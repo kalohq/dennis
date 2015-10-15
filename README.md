@@ -2,9 +2,10 @@
 
 ## Quickstart
 
-Install:
+Checkout and Install:
 
 ```
-pip install sawyer
-python3 setup.py install
+git clone https://github.com/lystable/dennis dennis
+cd dennis
+sudo python3 setup.py install
 ```
