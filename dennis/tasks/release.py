@@ -56,7 +56,7 @@ class ReleaseTask(Task):
             self.repo_name.split('/')[-1], self.repo_owner
         )
 
-        self.github_repo.create_git_tag_and_release(
+        release = self.github_repo.create_git_tag_and_release(
             self.meta['release_tag_name'],
             '', release_pr.title,
             changelog, last_commit_id, 'commit',
@@ -64,6 +64,15 @@ class ReleaseTask(Task):
         )
 
         # Merge master into develop
+        self.github_repo.merge('develop', 'master', 'Master back into Develop')
+
+        # Done
+        _log.info(
+            '{} is merged into master, and develop has'
+            ' been updated. See the latest published release @ {}'.format(
+                release_pr.title,
+                release.html_url)
+        )
 
     def _get_release_changelog(
         self, last_tag, new_tag, repo, owner

@@ -22,3 +22,9 @@ def run_command(args, cwd=None):
         return output[0], True, proc.returncode
     else:
         return output[1], False, proc.returncode
+
+
+class DennisException(Exception):
+    """
+        Generic exception
+    """
