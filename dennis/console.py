@@ -7,9 +7,12 @@ import getpass
 _log = logging.getLogger(__name__)
 
 
-def configure_logging():
+def configure_logging(draft):
     logging.basicConfig(
-        format='[%(asctime)s][%(levelname)s] %(message)s', level=logging.INFO
+        format='[%(asctime)s][%(levelname)s]{} %(message)s'.format(
+                '[DRAFT]' if draft else ''
+            ),
+        level=logging.INFO
     )
     logging.getLogger('requests').setLevel('WARN')
     logging.getLogger('PyGithub').setLevel('WARN')
@@ -68,6 +71,14 @@ def main():
         help='Don\'t do any merges and only create draft release'
     )
 
+    parser.add_argument(
+        '--build-timeout',
+        dest='build_timeout',
+        default=10,
+        help='How many minutes to wait for the '
+        'build to pass when trying to merge PR'
+    )
+
     args = parser.parse_args()
 
     if not args.github_user:
@@ -85,7 +96,7 @@ def main():
 
     action = args.action
 
-    configure_logging()
+    configure_logging(args.draft)
 
     task = tasks.TASKS[action](
         new_version=args.version,
@@ -93,7 +104,8 @@ def main():
         project_dir=args.project_dir,
         github_user=args.github_user,
         github_token=github_token,
-        draft=args.draft
+        draft=args.draft,
+        wait_for_minutes=args.build_timeout
     )
 
     task.run()
