@@ -4,12 +4,15 @@ import tasks
 import logging
 import getpass
 
-logging.basicConfig(
-    format='[%(asctime)s][%(levelname)s] %(message)s', level=logging.INFO
-)
-
-
 _log = logging.getLogger(__name__)
+
+
+def configure_logging():
+    logging.basicConfig(
+        format='[%(asctime)s][%(levelname)s] %(message)s', level=logging.INFO
+    )
+    logging.getLogger('requests').setLevel('WARN')
+    logging.getLogger('PyGithub').setLevel('WARN')
 
 
 def main():
@@ -57,6 +60,14 @@ def main():
         help='Project directory'
     )
 
+    parser.add_argument(
+        '--draft',
+        dest='draft',
+        action='store_true',
+        default=False,
+        help='Don\'t do any merges and only create draft release'
+    )
+
     args = parser.parse_args()
 
     if not args.github_user:
@@ -74,12 +85,15 @@ def main():
 
     action = args.action
 
+    configure_logging()
+
     task = tasks.TASKS[action](
         new_version=args.version,
         new_version_type=args.type,
         project_dir=args.project_dir,
         github_user=args.github_user,
-        github_token=github_token
+        github_token=github_token,
+        draft=args.draft
     )
 
     task.run()
