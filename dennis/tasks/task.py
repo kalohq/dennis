@@ -1,7 +1,7 @@
 import re
 import os
 import git
-import PyGithub as github
+import github
 import logging
 
 from .utils import version_key
@@ -11,10 +11,13 @@ _log = logging.getLogger(__name__)
 
 
 VERSION_PATTERN = re.compile('v([0-9]+\.)+')
-REPO_PATTERN = re.compile('([^/:]+/[^/]+)(.git)?$')
+REPO_PATTERN = re.compile('([^/:]+/[^/\.]+)(.git)?$')
 
 
 class Task:
+
+    changelog_name = 'CHANGELOG.md'
+    changelog_path = None
 
     pr_id_name = '.release_pr_id'
     pr_id_path = None
@@ -29,17 +32,21 @@ class Task:
 
     repo_name = None
 
+    draft = False
+
     meta = {}
 
     def __init__(
         self, github_user=None,
-        github_token=None, project_dir=None, **kwargs
+        github_token=None, project_dir=None,
+        draft=False, **kwargs
     ):
         self.repo_provider = DirectoryRepoProvider(project_dir)
         self.repo = self.repo_provider.get()
 
         self.github_user = github_user
         self.github_token = github_token
+        self.draft = draft
 
         repo_url = self.repo.remotes.origin. \
             config_reader.config.get('remote "origin"', 'url')
@@ -49,6 +56,9 @@ class Task:
         self.github_repo = github.Github(
             self.github_user, github_token
         ).get_repo(self.repo_name)
+
+        import pdb
+        pdb.set_trace()
 
         self.repo_owner = self.github_repo.owner.login
 
@@ -72,6 +82,10 @@ class Task:
             self.meta['release_branch_name'] = None
             self.meta['pr_id'] = None
 
+        self.changelog_path = os.path.join(
+            self.repo.working_dir, self.changelog_name
+        )
+
     def run(self):
         """Release process task."""
         raise NotImplementedError
@@ -89,6 +103,9 @@ class Task:
             return None
 
         return tags[-1]
+
+    def _format_release_branch_name(self, version):
+        return 'testrelease/{}'.format(version)
 
     def _get_current_release(self):
         branches = self.repo.remotes.origin.fetch()
@@ -145,6 +162,10 @@ class Task:
         self.repo.remotes.origin.push(
             refspec='{0}:{0}'.format(self.repo.active_branch.name)
         )
+
+    def _merge(self, pull_request):
+        if not self.draft:
+            pull_request.merge()
 
     def _add_pr_id(self, pr_id):
         with open(self.pr_id_path, 'w') as pr_id_file:

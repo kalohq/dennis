@@ -27,9 +27,6 @@ class PrepareTask(Task):
     release_script_name = 'release.sh'
     has_release_script = None
 
-    changelog_name = 'CHANGELOG.md'
-    changelog_path = None
-
     def __init__(
         self, new_version=None,
         new_version_type=None, **kwargs
@@ -42,10 +39,6 @@ class PrepareTask(Task):
             self.repo.working_dir, self.release_script_name
         )
         self.has_release_script = os.path.isfile(self.release_script_path)
-
-        self.changelog_path = os.path.join(
-            self.repo.working_dir, self.changelog_name
-        )
 
     def run(self):
         commit_required = False
@@ -96,7 +89,9 @@ class PrepareTask(Task):
         ))
 
         # Create new branch
-        release_branch_name = 'testrelease/{}'.format(new_version)
+        release_branch_name = self._format_release_branch_name(
+            new_version
+        )
 
         # If local branch exists
         if self._does_local_branch_exist(release_branch_name):
