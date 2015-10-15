@@ -5,15 +5,13 @@ import time
 import github
 import logging
 
-from .utils import version_key, DennisException
+from .utils import version_key, DennisException, VERSION_REGEX
 
 _log = logging.getLogger(__name__)
 
-
-VERSION_REGEX = 'v([0-9]+\.)+'
 RELEASE_PR_PATTERN = re.compile('Release {}'.format(VERSION_REGEX))
 RELEASE_BRANCH_PATTERN = re.compile(
-    '(origin/)?testrelease/{}'.format(VERSION_REGEX)
+    '(origin/)?release/{}'.format(VERSION_REGEX)
 )
 REPO_PATTERN = re.compile('([^/:]+/[^/\.]+)(.git)?$')
 
@@ -145,7 +143,7 @@ class Task:
         return tags[-1]
 
     def _format_release_branch_name(self, version):
-        return 'testrelease/{}'.format(version)
+        return 'release/{}'.format(version)
 
     def _format_release_pr_name(self, version):
         return 'Release {}'.format(version)
@@ -271,7 +269,7 @@ class Task:
             else:
                 raise DennisException(
                     'Build checks for PR "{}" didn\'t'
-                    'pass, not merging'.format(
+                    ' pass, not merging'.format(
                         pull_request.title
                     )
                 )

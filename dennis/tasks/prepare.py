@@ -1,7 +1,12 @@
 import os
+import re
 import logging
 
-from .utils import version_key, text_input, run_command
+from .utils import (
+    version_key,
+    run_command, VERSION_REGEX,
+    DennisException
+)
 from .task import Task
 
 _log = logging.getLogger(__name__)
@@ -13,9 +18,7 @@ class PrepareTask(Task):
     """
         Steps taken:
 
-        - Check out develop
-        - Pull
-        - Prompt for new tag version or use provided one
+        - If release branch exists then exit
         - Create new branch with new tag
         - Execute the release script release.sh
         - Commit changes and Push
@@ -33,6 +36,18 @@ class PrepareTask(Task):
     ):
         super().__init__(**kwargs)
         self.new_version = new_version
+
+        if (
+            self.new_version and
+            not re.match(re.compile(VERSION_REGEX), self.new_version)
+        ):
+            raise DennisException(
+                'Provided version {} does not '
+                'conform with format "vX.Y.Z"'.format(
+                    self.new_version
+                )
+            )
+
         self.new_version_type = new_version_type
 
         self.release_script_path = os.path.join(
@@ -67,22 +82,6 @@ class PrepareTask(Task):
             new_version = self._get_version_upgrade_choices(
                 self.last_tag_name
             )[self.new_version_type]
-
-        # Upgrade based on input version type
-        if new_version is None:
-            choices = self._get_version_upgrade_choices(
-                self.last_tag_name
-            )
-            ordered_choices = RELEASE_TYPES
-            new_version_type = text_input(
-                'Please select the new version type as one of [{}]'
-                ', which result in {} respectively'.format(
-                    ', '.join(ordered_choices),
-                    ', '.join([choices[c] for c in ordered_choices])
-                ),
-                'fix'
-            )
-            new_version = choices[new_version_type]
 
         _log.info('Creating new release branch with version {}'.format(
             new_version

@@ -1,13 +1,10 @@
 import subprocess
 
+VERSION_REGEX = 'v([0-9]+\.)+'
+
 
 def version_key(version):
     return list(map(int, (version).split('.')))
-
-
-def text_input(question, default=''):
-    answer = input('{0} [{1}]'.format(question, default))
-    return answer or default
 
 
 def run_command(args, cwd=None):

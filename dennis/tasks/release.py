@@ -12,6 +12,16 @@ def jinja2_render(context, template_text):
 
 
 class ReleaseTask(Task):
+    """
+        Steps:
+
+        - If no ongoing release, exit
+        - Checkout and pull release branch
+        - Merge release PR into master if build passes
+        - Create GitHub release using the latest changelog
+        - Merge master back into develop
+
+    """
 
     wait_for_minutes = 0
 
