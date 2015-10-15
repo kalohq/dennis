@@ -1,3 +1,18 @@
+## [v0.1.3](https://github.com/lystable/dennis/tree/v0.1.3) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.1.2...v0.1.3)
+
+**Added**:
+
+- Mergeback and log message 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#9](https://github.com/lystable/dennis/pull/9/))
+- Release v0.1.2 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#8](https://github.com/lystable/dennis/pull/8/))
+
+
+
 ## [v0.1.2](https://github.com/lystable/dennis/tree/v0.1.2) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.1.1...v0.1.2)
