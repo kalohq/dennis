@@ -57,9 +57,6 @@ class Task:
             self.github_user, github_token
         ).get_repo(self.repo_name)
 
-        import pdb
-        pdb.set_trace()
-
         self.repo_owner = self.github_repo.owner.login
 
         # Checkout latest changes for this repo
