@@ -18,19 +18,20 @@ RELEASE_BRANCH_PATTERN = re.compile(
 REPO_PATTERN = re.compile('([^/:]+/[^/\.]+)(.git)?$')
 
 
-def wait_while_false(cmd, wait_for_minutes, *args):
+def wait_while_result_satisfies(
+    cmd, does_result_satisfy, wait_for_minutes, *args
+):
     start_time = time.time()
 
     def minutes_passed():
         return int((time.time() - start_time) / 60)
 
-    is_true = cmd(*args)
-    while not is_true and minutes_passed() < wait_for_minutes:
+    while (
+        does_result_satisfy(cmd(*args)) and
+        minutes_passed() < wait_for_minutes
+    ):
         _log.info('Sleeping for 10 seconds and checking again...')
         time.sleep(10)
-        is_true = cmd(*args)
-
-    return is_true
 
 
 class Task:
@@ -245,25 +246,27 @@ class Task:
         )
 
     def _merge(self, pull_request, wait_for_minutes=0):
-        if not self.draft:
+        passed = self._have_checks_passed(pull_request)
+        if (
+            passed == 'pending' and
+            wait_for_minutes > 0
+        ):
+            _log.info(
+                'Going into while loop until checks have passed'
+                ' or until {} minutes have gone by'.format(
+                    wait_for_minutes
+                )
+            )
+            wait_while_result_satisfies(
+                self._have_checks_passed,
+                lambda result: result.lower() == 'pending',
+                wait_for_minutes,
+                pull_request
+            )
             passed = self._have_checks_passed(pull_request)
-            if (
-                not passed and
-                wait_for_minutes > 0
-            ):
-                _log.info(
-                    'Going into while loop until checks have passed'
-                    ' or until {} minutes have gone by'.format(
-                        wait_for_minutes
-                    )
-                )
-                passed = wait_while_false(
-                    self._have_checks_passed,
-                    wait_for_minutes,
-                    pull_request
-                )
 
-            if passed:
+        if not self.draft:
+            if passed == 'passed':
                 pull_request.merge()
             else:
                 raise DennisException(
@@ -275,6 +278,11 @@ class Task:
 
     def _merge_branches(self, base, head, message):
         if not self.draft:
+            _log.info(
+                'Merging {} into {} remotely'.format(
+                    head, base
+                )
+            )
             self.github_repo.merge(
                 base, head, message
             )
@@ -283,7 +291,23 @@ class Task:
         last_commit = list(
             pull_request.get_commits()
         )[-1]
-        return all([
-            status.state == 'passed'
-            for status in last_commit.get_statuses()
-        ])
+
+        if not any(last_commit.get_statuses()):
+            return 'passed'
+
+        statuses = list(last_commit.get_statuses())
+        statuses.sort(
+            key=lambda status: status.created_at
+        )
+
+        _log.info(
+            'There are {} statuses. Using only most recent one: {}'.format(
+                len(statuses),
+                {
+                    'source': statuses[-1].target_url,
+                    'state': statuses[-1].state
+                }
+            )
+        )
+
+        return statuses[-1].state
