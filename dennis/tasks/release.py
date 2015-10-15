@@ -13,8 +13,11 @@ def jinja2_render(context, template_text):
 
 class ReleaseTask(Task):
 
-    def __init__(self, **kwargs):
+    wait_for_minutes = 0
+
+    def __init__(self, wait_for_minutes=0, **kwargs):
         super().__init__(**kwargs)
+        self.wait_for_minutes = wait_for_minutes
 
     def run(self):
         # Is there a release?
@@ -34,12 +37,12 @@ class ReleaseTask(Task):
         release_pr = self.github_repo.get_pull(pr_id)
 
         # Merge PR into master
-        if release_pr.mergeable and not release_pr.is_merged():
+        if not release_pr.is_merged():
             _log.info('Pull request "{}" in {} is mergeable, merging'.format(
                 release_pr.title,
                 self.repo_name
             ))
-            self._merge(release_pr)
+            self._merge(release_pr, wait_for_minutes=self.wait_for_minutes)
 
         # Publish release
         #
@@ -64,14 +67,16 @@ class ReleaseTask(Task):
         )
 
         # Merge master into develop
-        self.github_repo.merge('develop', 'master', 'Master back into Develop')
+        self.github_repo.merge(
+            'develop', 'master', '(dennis) Master back into Develop'
+        )
 
         # Done
         _log.info(
             '{} is merged into master, and develop has'
             ' been updated. See the latest published release @ {}'.format(
                 release_pr.title,
-                release.html_url)
+                release.raw_data['html_url'])
         )
 
     def _get_release_changelog(

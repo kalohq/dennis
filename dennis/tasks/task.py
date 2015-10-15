@@ -1,6 +1,7 @@
 import re
 import os
 import git
+import time
 import github
 import logging
 
@@ -12,6 +13,21 @@ _log = logging.getLogger(__name__)
 
 VERSION_PATTERN = re.compile('v([0-9]+\.)+')
 REPO_PATTERN = re.compile('([^/:]+/[^/\.]+)(.git)?$')
+
+
+def wait_while_false(cmd, wait_for_minutes, *args):
+    start_time = time.time()
+
+    def minutes_passed():
+        return int((time.time() - start_time) / 60)
+
+    is_true = cmd(*args)
+    while not is_true and minutes_passed() < wait_for_minutes:
+        _log.info('Sleeping for 10 seconds and checking again...')
+        time.sleep(10)
+        is_true = cmd(*args)
+
+    return is_true
 
 
 class Task:
@@ -177,9 +193,38 @@ class Task:
             refspec='{0}:{0}'.format(self.repo.active_branch.name)
         )
 
-    def _merge(self, pull_request):
+    def _merge(self, pull_request, wait_for_minutes=0):
         if not self.draft:
-            pull_request.merge()
+            passed = self._have_checks_passed(pull_request)
+            if (
+                not passed and
+                wait_for_minutes > 0
+            ):
+                _log.info(
+                    'Going into while loop until checks have passed'
+                    ' or until {} minutes have gone by'.format(
+                        wait_for_minutes
+                    )
+                )
+                passed = wait_while_false(
+                    self._have_checks_passed,
+                    wait_for_minutes,
+                    pull_request
+                )
+
+            if passed:
+                pull_request.merge()
+            else:
+                raise DennisException(
+                    'Build checks for PR "{}" didn\'t'
+                    'pass, not merging'.format(
+                        pull_request.title
+                    )
+                )
+
+    def _have_checks_passed(self, pull_request):
+        import pdb
+        pdb.set_trace()
 
     def _add_pr_id(self, pr_id):
         with open(self.pr_id_path, 'w') as pr_id_file:
