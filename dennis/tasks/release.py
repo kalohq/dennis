@@ -22,9 +22,12 @@ class ReleaseTask(Task):
     def run(self):
         # Is there a release?
         if not self.release_branch_name:
-            _log.error('Could not find any ongoing release for {}'.format(
-                self.repo_name
-            ))
+            _log.error(
+                'Could not find any ongoing release for {}.'
+                ' Have you run "dennis prepare" yet?'
+                .format(
+                    self.repo_name)
+            )
             return
 
         # Checkout and pull the release branch
