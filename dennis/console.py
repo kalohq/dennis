@@ -1,8 +1,9 @@
 import sys
 import argparse
-import tasks
 import logging
 import getpass
+
+from . import tasks
 
 _log = logging.getLogger(__name__)
 
