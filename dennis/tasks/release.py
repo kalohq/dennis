@@ -21,7 +21,7 @@ class ReleaseTask(Task):
 
     def run(self):
         # Is there a release?
-        if not self.meta['release_branch_name']:
+        if not self.release_branch_name:
             _log.error('Could not find any ongoing release for {}'.format(
                 self.repo_name
             ))
@@ -29,20 +29,17 @@ class ReleaseTask(Task):
 
         # Checkout and pull the release branch
         self._checkout_and_pull(
-            self.meta['release_branch_name']
+            self.release_branch_name
         )
 
-        pr_id = self._get_pr_id()
-
-        release_pr = self.github_repo.get_pull(pr_id)
-
         # Merge PR into master
-        if not release_pr.is_merged():
+        if not self.release_pr.is_merged():
             _log.info('Pull request "{}" in {} is mergeable, merging'.format(
-                release_pr.title,
+                self.release_pr.title,
                 self.repo_name
             ))
-            self._merge(release_pr, wait_for_minutes=self.wait_for_minutes)
+            self._merge(
+                self.release_pr, wait_for_minutes=self.wait_for_minutes)
 
         # Publish release
         #
@@ -55,28 +52,35 @@ class ReleaseTask(Task):
         # ):
         last_commit_id = self.repo.heads.master.commit.hexsha
         changelog = self._get_release_changelog(
-            self.meta['last_tag_name'], self.meta['release_tag_name'],
-            self.repo_name.split('/')[-1], self.repo_owner
+            self.last_tag_name, self.release_tag_name,
+            self.repo_name, self.repo_owner
         )
 
-        release = self.github_repo.create_git_tag_and_release(
-            self.meta['release_tag_name'],
-            '', release_pr.title,
-            changelog, last_commit_id, 'commit',
-            draft=self.draft, prerelease=self.draft
-        )
+        # Not making releases draft-able as this introduces complication
+        # when handling the real release
+        release_url = 'N/A'
+        if (
+            not self.release and
+            not self.draft
+        ):
+            release = self.github_repo.create_git_tag_and_release(
+                self.release_tag_name,
+                '', self.release_pr.title,
+                changelog, last_commit_id, 'commit'
+            )
+            release_url = release.raw_data['html_url']
 
         # Merge master into develop
-        self.github_repo.merge(
+        self._merge_branches(
             'develop', 'master', '(dennis) Master back into Develop'
         )
 
         # Done
         _log.info(
             '{} is merged into master, and develop has'
-            ' been updated. See the latest published release @ {}'.format(
-                release_pr.title,
-                release.raw_data['html_url'])
+            ' been updated. \n\nSee the latest published release @ {}'.format(
+                self.release_pr.title,
+                release_url)
         )
 
     def _get_release_changelog(

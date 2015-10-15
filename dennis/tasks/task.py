@@ -6,12 +6,15 @@ import github
 import logging
 
 from .utils import version_key, DennisException
-from .repo import DirectoryRepoProvider
 
 _log = logging.getLogger(__name__)
 
 
-VERSION_PATTERN = re.compile('v([0-9]+\.)+')
+VERSION_REGEX = 'v([0-9]+\.)+'
+RELEASE_PR_PATTERN = re.compile('Release {}'.format(VERSION_REGEX))
+RELEASE_BRANCH_PATTERN = re.compile(
+    '(origin/)?testrelease/{}'.format(VERSION_REGEX)
+)
 REPO_PATTERN = re.compile('([^/:]+/[^/\.]+)(.git)?$')
 
 
@@ -35,30 +38,46 @@ class Task:
     changelog_name = 'CHANGELOG.md'
     changelog_path = None
 
-    pr_id_name = '.release_pr_id'
-    pr_id_path = None
-
     repo_provider = None
 
+    # Git object
     repo = None
 
+    # GitHub object
     github_repo = None
 
+    # Repository owner name
     repo_owner = None
 
+    # Repository name
     repo_name = None
 
+    # Whether this is a draft run
     draft = False
 
-    meta = {}
+    # Last tag in this repo (mandatory)
+    last_tag = None
+
+    # Current release branch (if any)
+    release_branch = None
+
+    # Current release PR (if any)
+    release_pr = None
+
+    # Current GitHub release (if any)
+    release = None
+
+    # Some shortcuts
+    last_tag_name = None
+    release_branch_name = None
+    release_tag_name = None
 
     def __init__(
         self, github_user=None,
-        github_token=None, project_dir=None,
+        github_token=None, project_dir=os.getcwd(),
         draft=False, **kwargs
     ):
-        self.repo_provider = DirectoryRepoProvider(project_dir)
-        self.repo = self.repo_provider.get()
+        self.repo = git.Repo(project_dir)
 
         self.github_user = github_user
         self.github_token = github_token
@@ -74,34 +93,33 @@ class Task:
         ).get_repo(self.repo_name)
 
         self.repo_owner = self.github_repo.owner.login
+        self.repo_name = self.github_repo.name
 
         # Checkout latest changes for this repo
         self._checkout_and_pull('develop')
 
-        self.pr_id_path = os.path.join(
-            self.repo.working_dir, self.pr_id_name
-        )
+        self.last_tag = self._get_latest_tag()
 
-        self.meta['last_tag'] = self._get_latest_tag()
+        if not self.last_tag:
+            raise DennisException(
+                'dennis cannot yet handle projects without at least'
+                ' one tag, sorry!'
+            )
 
-        if not self.meta['last_tag']:
-            self.meta['last_tag_name'] = None
-        else:
-            self.meta['last_tag_name'] = self.meta['last_tag'].name
+        self.last_tag_name = self.last_tag.name
 
-        self.meta['release_branch'] = self._get_current_release()
+        _log.info('Searching for ongoing releases in {}...'.format(
+            self.repo_name
+        ))
+        self.release_branch = self._get_open_release_branch()
 
-        if self.meta['release_branch']:
-            self.meta['release_branch_name'] = self.meta[
-                'release_branch'
-            ].ref.remote_head
-            self.meta['release_tag_name'] = self.meta[
-                'release_branch'
-            ].name.split('/')[-1]
-        else:
-            self.meta['release_branch'] = None
-            self.meta['release_branch_name'] = None
-            self.meta['pr_id'] = None
+        if self.release_branch:
+            _log.info('Found release branch. Searching for open PR...')
+            self.release_pr = self._get_open_release_pr()
+            self.release_branch_name = self.release_branch.ref.remote_head
+            self.release_tag_name = self.release_branch.name.split('/')[-1]
+            _log.info('Searching for existing GitHub release...')
+            self.release = self._get_release_for_tag(self.release_tag_name)
 
         self.changelog_path = os.path.join(
             self.repo.working_dir, self.changelog_name
@@ -128,13 +146,16 @@ class Task:
     def _format_release_branch_name(self, version):
         return 'testrelease/{}'.format(version)
 
-    def _get_current_release(self):
+    def _format_release_pr_name(self, version):
+        return 'Release {}'.format(version)
+
+    def _get_open_release_branch(self):
         branches = self.repo.remotes.origin.fetch()
 
         release_branches = [
             b
             for b in branches
-            if re.match(VERSION_PATTERN, b.name.split('/')[-1])
+            if re.match(RELEASE_BRANCH_PATTERN, b.name)
         ]
 
         if not any(release_branches):
@@ -149,12 +170,42 @@ class Task:
         )
 
         last_version = release_branches[-1].name.split('/')[-1].strip('v')
-        latest_tag_version = self.meta['last_tag'].name.strip('v')
+        latest_tag_version = self.last_tag_name.strip('v')
 
         if version_key(latest_tag_version) < version_key(last_version):
             return release_branches[-1]
 
         return None
+
+    def _get_open_release_pr(self):
+        issues = list(self.github_repo.get_issues())
+
+        open_prs = [
+            issue.pull_request
+            for issue in issues
+            if re.match(RELEASE_PR_PATTERN, issue.title)
+        ]
+
+        if not any(open_prs):
+            _log.warn(
+                'No open pull requests found in repo {}'.format(
+                    self.repo_name
+                )
+            )
+            return None
+
+        release_pr_data = open_prs[0].raw_data
+        release_pr_number = int(release_pr_data['url'].split('/')[-1])
+
+        return self.github_repo.get_pull(
+            release_pr_number
+        )
+
+    def _get_release_for_tag(self, tag):
+        try:
+            return self.github_repo.get_release(tag)
+        except:
+            return None
 
     def _checkout_and_pull(self, name):
         _log.info('Checking out and pulling {}'.format(name))
@@ -222,15 +273,17 @@ class Task:
                     )
                 )
 
+    def _merge_branches(self, base, head, message):
+        if not self.draft:
+            self.github_repo.merge(
+                base, head, message
+            )
+
     def _have_checks_passed(self, pull_request):
-        import pdb
-        pdb.set_trace()
-
-    def _add_pr_id(self, pr_id):
-        with open(self.pr_id_path, 'w') as pr_id_file:
-            pr_id_file.write(str(pr_id))
-        self.repo.index.add([self.pr_id_path])
-
-    def _get_pr_id(self):
-        with open(self.pr_id_path, 'r') as pr_id_file:
-            return int(pr_id_file.read().strip())
+        last_commit = list(
+            pull_request.get_commits()
+        )[-1]
+        return all([
+            status.state == 'passed'
+            for status in last_commit.get_statuses()
+        ])
