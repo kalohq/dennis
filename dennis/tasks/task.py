@@ -4,7 +4,7 @@ import git
 import github
 import logging
 
-from .utils import version_key
+from .utils import version_key, DennisException
 from .repo import DirectoryRepoProvider
 
 _log = logging.getLogger(__name__)
@@ -143,7 +143,16 @@ class Task:
     def _checkout_and_pull(self, name):
         _log.info('Checking out and pulling {}'.format(name))
         branch = self.repo.heads.__getattr__(name)
-        branch.checkout()
+        try:
+            branch.checkout()
+        except git.exc.GitCommandError:
+            raise DennisException(
+                'Failed to checkout {}, most likely '
+                'because you have some local changes.'
+                ' Please stash your changes.'.format(
+                    name)
+            )
+
         self.repo.remotes.origin.pull(
             refspec='{0}:{0}'.format(self.repo.active_branch.name)
         )
