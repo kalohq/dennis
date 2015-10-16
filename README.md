@@ -5,9 +5,15 @@
 - Checkout and Install:
 
 ```
+# Fix this issue (probably a PR to sawyer)
+git clone https://github.com/lystable/sawyer sawyer
+cd sawyer
+python3 setup.py develop
+
+# Install dennis
 git clone https://github.com/lystable/dennis dennis
 cd dennis
-sudo python3 setup.py develop
+python3 setup.py develop
 ```
 
 You'll need to run any `dennis` commands from within the Git project you wish to release.
