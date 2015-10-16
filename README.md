@@ -18,6 +18,14 @@ You'll need to run any `dennis` commands from within the Git project you wish to
 dennis prepare --type fix --user <your username>
 ```
 
+- Draft a release:
+
+```
+dennis release --user <your username> --draft
+```
+
+This will not merge any PRs, but it's useful for ensuring the current release state is retrieved normally.
+
 - Complete a release:
 
 ```
