@@ -5,7 +5,7 @@
 - Checkout and Install:
 
 ```
-# Fix this issue (probably a PR to sawyer)
+# Install sawyer manually (this needs fixing, probably a PR to sawyer)
 git clone https://github.com/lystable/sawyer sawyer
 cd sawyer
 python3 setup.py develop
