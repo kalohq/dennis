@@ -35,7 +35,7 @@ class PrepareTask(Task):
         new_version_type=None, **kwargs
     ):
         super().__init__(**kwargs)
-        self.new_version = new_versionb
+        self.new_version = new_version
 
         if (
             self.new_version and
@@ -64,15 +64,15 @@ class PrepareTask(Task):
 
         # If remote branch exists
         if self.release_branch:
-            _log.info('A release branch seems to be ongoing already {}'.format(
-                self.release_branch_name
-            ))
-            _log.info(
+            raise DennisException(
+                'A release branch seems to be ongoing already {}'
                 '\n\nPlease checkout that branch'
-                ' and continue by making code fixes to it or hit'
+                ' and continue by making code fixes to it until you hit'
                 ' "dennis release"'
+                '\n\nAlternatively hit "dennis prepare --startover"'
+                ' in order to delete any existing release'
+                ' PR and branch'.format(self.release_branch_name)
             )
-            return
 
         # Get latest version
         new_version = self.new_version
@@ -121,13 +121,12 @@ class PrepareTask(Task):
                 cwd=self.repo.working_dir
             )
             if not success:
-                _log.error(
+                raise DennisException(
                     'Failed to run release script {} with code {}'
                     ' and output {}'.format(
                         self.release_script_path, return_code, output
                     )
                 )
-                return
             commit_required = True
         else:
             _log.warn(
@@ -183,15 +182,15 @@ class PrepareTask(Task):
         )
 
         if not success:
-            _log.error(
-                'Failed to generate changelog. Ran sawyer with {}'
-                ' and received error code {} with output: {}'.format(
+            sawyer_args[sawyer_args.index('-t')+1] = '********'
+            raise DennisException(
+                'Failed to generate changelog. Ran sawyer with:\n\n{}\n\n'
+                'and received error code {} with output:\n\n{}'.format(
                     ' '.join(sawyer_args),
                     return_code,
-                    output
+                    output.decode('utf-8')
                 )
             )
-            return
 
         new_changelog = output.decode('utf-8')
 
