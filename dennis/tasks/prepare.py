@@ -27,7 +27,7 @@ class PrepareTask(Task):
     """
 
     release_script_path = None
-    release_script_name = 'release.sh'
+    release_script_name = 'release'
     has_release_script = None
 
     def __init__(
@@ -35,7 +35,7 @@ class PrepareTask(Task):
         new_version_type=None, **kwargs
     ):
         super().__init__(**kwargs)
-        self.new_version = new_version
+        self.new_version = new_versionb
 
         if (
             self.new_version and
@@ -114,7 +114,7 @@ class PrepareTask(Task):
             ))
             output, success, return_code = run_command(
                 [
-                    'bash', '-x', self.release_script_path,
+                    self.release_script_path,
                     self.last_tag_name,
                     new_version
                 ],
