@@ -69,7 +69,7 @@ class PrepareTask(Task):
                 '\n\nPlease checkout that branch'
                 ' and continue by making code fixes to it until you hit'
                 ' "dennis release"'
-                '\n\nAlternatively hit "dennis prepare --startover"'
+                '\n\nAlternatively hit "dennis startover (coming soon!)"'
                 ' in order to delete any existing release'
                 ' PR and branch'.format(self.release_branch_name)
             )
@@ -174,7 +174,7 @@ class PrepareTask(Task):
 
         _log.info(
             'Generating the changelog since the previous release.'
-            ' This can take a couple minutes...'
+            ' This can take a couple of minutes...'
         )
         output, success, return_code = run_command(
             sawyer_args,
