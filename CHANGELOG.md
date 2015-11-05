@@ -1,3 +1,21 @@
+## [v0.3.0](https://github.com/lystable/dennis/tree/v0.3.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.2.0...v0.3.0)
+
+**Added**:
+
+- Fix the changelog generation exception handling and error output 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#20](https://github.com/lystable/dennis/pull/20/))
+- Change release.sh to release and assume it's executable and 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#19](https://github.com/lystable/dennis/pull/19/))
+- Release v0.2.0 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#18](https://github.com/lystable/dennis/pull/18/))
+
+
+
 ## [v0.2.0](https://github.com/lystable/dennis/tree/v0.2.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.1.7...v0.2.0)

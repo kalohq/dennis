@@ -28,7 +28,8 @@ setup(
         'GitPython',
         'PyGithub',
         'sawyer',
-        'jinja2'
+        'jinja2',
+        'coloredlogs'
     ],
     dependency_links=[
         'https://github.com/PyGithub/PyGithub/archive/c7a85c0d7b5c0b36d5f48a50008d0e15fb900d8c.zip#egg=PyGithub',
