@@ -3,21 +3,22 @@ import argparse
 import logging
 import getpass
 
+import coloredlogs
+
 from . import tasks
 
 _log = logging.getLogger(__name__)
 
 
 def configure_logging(draft):
-    logging.basicConfig(
-        format='[%(asctime)s][%(levelname)s]{} %(message)s'.format(
+    coloredlogs.install(
+        fmt='[%(asctime)s]{} %(message)s'.format(
                 '[DRAFT]' if draft else ''
-            ),
-        level=logging.INFO
+        ),
+        level='INFO'
     )
     logging.getLogger('requests').setLevel('WARN')
     logging.getLogger('PyGithub').setLevel('WARN')
-
 
 def main():
     parser = argparse.ArgumentParser()

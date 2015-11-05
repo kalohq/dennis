@@ -15,7 +15,7 @@ old_version = sys.argv[1].strip('v')
 new_version = sys.argv[2].strip('v')
 
 VERSION_FILE = os.path.join(
-    os.curdir(), 'VERSION'
+    os.getcwd(), 'VERSION'
 )
 
 with open(VERSION_FILE, 'r') as version_file:
