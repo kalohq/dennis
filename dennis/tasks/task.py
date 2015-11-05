@@ -264,7 +264,7 @@ class Task:
             passed = self._have_checks_passed(pull_request)
 
         if not self.draft:
-            if passed == 'passed':
+            if passed in ['passed', 'success']:
                 pull_request.merge()
             else:
                 raise DennisException(

@@ -25,11 +25,15 @@ setup(
     license='MIT',
     install_requires=[
         'uritemplate.py',
-        'GitPython'
+        'GitPython',
+        'PyGithub',
+        'sawyer',
+        'jinja2',
+        'coloredlogs'
     ],
     dependency_links=[
-        'https://github.com/PyGithub/PyGithub/archive/c7a85c0d7b5c0b36d5f48a50008d0e15fb900d8c.zip',
-        'https://github.com/lystable/sawyer/archive/develop.zip'
+        'https://github.com/PyGithub/PyGithub/archive/c7a85c0d7b5c0b36d5f48a50008d0e15fb900d8c.zip#egg=PyGithub',
+        'https://github.com/lystable/sawyer/archive/develop.zip#egg=sawyer'
     ],
     entry_points={
         'console_scripts': [

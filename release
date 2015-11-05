@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+#
+# Script required for 'dennis' release tool.
+#
+# Takes arguments: <last version> <new version>
+#
+import os
+import sys
+
+if len(sys.argv) < 3:
+    print('Missing arguments: <old version> <new version>')
+    sys.exit(1)
+
+old_version = sys.argv[1].strip('v')
+new_version = sys.argv[2].strip('v')
+
+VERSION_FILE = os.path.join(
+    os.getcwd(), 'VERSION'
+)
+
+with open(VERSION_FILE, 'r') as version_file:
+    lines = version_file.readlines()
+
+with open(VERSION_FILE, 'w') as version_file:
+    for line in lines:
+        version_file.write(line.replace(old_version, new_version))
