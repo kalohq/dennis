@@ -174,7 +174,7 @@ class PrepareTask(Task):
 
         _log.info(
             'Generating the changelog since the previous release.'
-            ' This can take a couple minutes...'
+            ' This can take a couple of minutes...'
         )
         output, success, return_code = run_command(
             sawyer_args,
