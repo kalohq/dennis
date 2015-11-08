@@ -1,3 +1,18 @@
+## [v0.4.0](https://github.com/lystable/dennis/tree/v0.4.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.3.0...v0.4.0)
+
+**Added**:
+
+- fix message 
+  ([@matan44](https://github.com/matan44/)
+  in [\#22](https://github.com/lystable/dennis/pull/22/))
+- Release v0.3.0 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#21](https://github.com/lystable/dennis/pull/21/))
+
+
+
 ## [v0.3.0](https://github.com/lystable/dennis/tree/v0.3.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.2.0...v0.3.0)

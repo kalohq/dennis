@@ -20,12 +20,13 @@ def configure_logging(draft):
     logging.getLogger('requests').setLevel('WARN')
     logging.getLogger('PyGithub').setLevel('WARN')
 
+
 def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
         'action',
-        choices=['prepare', 'release', 'changelog']
+        choices=['prepare', 'release']
     )
 
     parser.add_argument(
@@ -33,14 +34,23 @@ def main():
         default=None,
         choices=tasks.RELEASE_TYPES,
         help='Release type. Indicates which of'
-        ' vX.Y.Z to increment (major = X, minor = Y, fix = Z).'
-        ' Ignore if --version is provided.'
+        ' vX.Y.Z to increment (major = X, minor = Y, hotfix = Z).'
+        ' \'hotfix\' will branch off master.'
+        ' Option is ignored if --version is provided.'
     )
 
     parser.add_argument(
         '--version',
         default=None,
         help='Release version in the format vX.Y.Z. Overrides --type.'
+        ' Will branch off master by default, use --branch to override.'
+    )
+
+    parser.add_argument(
+        '--branch',
+        default=None,
+        help='Branch from which to create a new release.'
+        ' Used only when --version is specified. Default is master.'
     )
 
     parser.add_argument(
@@ -69,7 +79,7 @@ def main():
         dest='draft',
         action='store_true',
         default=False,
-        help='Don\'t do any merges and only create draft release'
+        help='Don\'t do any merges, just create PRs'
     )
 
     parser.add_argument(
@@ -93,6 +103,13 @@ def main():
         )
         sys.exit(1)
 
+    if args.version and not args.branch:
+        _log.warn(
+            'You specified --version, the default is to use the'
+            ' \'master\' branch for the new release branch. Use '
+            '--branch if you wish to override this.'
+        )
+
     github_token = args.github_token or getpass.getpass()
 
     action = args.action
@@ -102,6 +119,7 @@ def main():
     task = tasks.TASKS[action](
         new_version=args.version,
         new_version_type=args.type,
+        branch=args.branch,
         project_dir=args.project_dir,
         github_user=args.github_user,
         github_token=github_token,
