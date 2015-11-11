@@ -5,7 +5,11 @@ import time
 import github
 import logging
 
-from .utils import version_key, DennisException, VERSION_REGEX
+from .utils import (
+    version_key, DennisException,
+    VERSION_REGEX, get_next_version_options,
+    format_release_branch_name, format_release_pr_name
+)
 
 _log = logging.getLogger(__name__)
 
@@ -32,6 +36,42 @@ def wait_while_result_satisfies(
         time.sleep(10)
 
 
+class Release:
+
+    # Release version
+    version = None
+
+    # Release branch name
+    name = None
+
+    # (Release Artifact) Release branch
+    branch = None
+
+    # (Release Artifact) Release PR object
+    pr = None
+
+    # (Release Artifact) GitHub release object
+    github_release = None
+
+    # (Release Artifact) Is merged back into develop
+    merged_back = False
+
+    def __init__(self, version):
+        self.version = version
+        self.name = format_release_branch_name(version)
+
+    def is_started(self):
+        return self.branch is not None
+
+    def is_complete(self):
+        return (
+            all([
+                self.branch,
+                self.merged_back,
+                self.github_release])
+        )
+
+
 class Task:
 
     changelog_name = 'CHANGELOG.md'
@@ -54,26 +94,22 @@ class Task:
     # Whether this is a draft run
     draft = False
 
-    # Last tag in this repo (mandatory)
-    last_tag = None
+    # Current release version
+    version = None
 
-    # Current release branch (if any)
-    release_branch = None
+    # Last release version
+    last_version = None
 
-    # Current release PR (if any)
-    release_pr = None
-
-    # Current GitHub release (if any)
+    # Current release artifacts
     release = None
 
-    # Some shortcuts
-    last_tag_name = None
-    release_branch_name = None
-    release_tag_name = None
+    # Last release artifacts
+    # last_release = None
 
     def __init__(
-        self, github_user=None,
+        self, github_user=None, pickup=None,
         github_token=None, project_dir=os.getcwd(),
+        version=None, version_type=None,
         draft=False, **kwargs
     ):
         self.repo = git.Repo(project_dir)
@@ -95,30 +131,34 @@ class Task:
         self.repo_name = self.github_repo.name
 
         # Checkout latest changes for this repo
+        _log.info('Checking out and pulling develop')
         self._checkout_and_pull('develop')
 
-        self.last_tag = self._get_latest_tag()
+        last_tag = self._get_latest_tag()
 
-        if not self.last_tag:
+        if not last_tag:
             raise DennisException(
                 'dennis cannot yet handle projects without at least'
                 ' one tag, sorry!'
             )
 
-        self.last_tag_name = self.last_tag.name
-
-        _log.info('Searching for ongoing releases in {}...'.format(
-            self.repo_name
+        _log.info('Last release version in {}: {}'.format(
+            self.repo_name, last_tag.name
         ))
-        self.release_branch = self._get_open_release_branch()
 
-        if self.release_branch:
-            _log.info('Found release branch. Searching for open PR...')
-            self.release_pr = self._get_open_release_pr()
-            self.release_branch_name = self.release_branch.ref.remote_head
-            self.release_tag_name = self.release_branch.name.split('/')[-1]
-            _log.info('Searching for existing GitHub release...')
-            self.release = self._get_release_for_tag(self.release_tag_name)
+        self.last_version = last_tag.name
+        self.version = version
+
+        # Set version based on version type if needed
+        if version is None and version_type is not None:
+            self.version = get_next_version_options(
+                self.last_version
+            )[version_type]
+
+        self.release = self._get_release_artifacts(self.version)
+
+        # if not self.release:
+        # self.last_release = self._get_release_artifacts(self.last_version)
 
         self.changelog_path = os.path.join(
             self.repo.working_dir, self.changelog_name
@@ -127,6 +167,39 @@ class Task:
     def run(self):
         """Release process task."""
         raise NotImplementedError
+
+    def _get_release_artifacts(self, version):
+        release = Release(version)
+
+        _log.info(
+            'Gathering release artifacts'
+            ' in project {} for version {}:'.format(
+                self.repo_name, release.version)
+        )
+
+        _log.info('\t- release branch...')
+        release.branch = self._get_branch(release.name)
+
+        if not release.branch:
+            return None
+
+        _log.info('\t- release PR...')
+        release.pr = self._get_open_pr(
+            format_release_pr_name(release.version)
+        )
+
+        _log.info('\t- GitHub release...')
+        release.github_release = self._get_github_release(
+            release.version
+        )
+
+        _log.info('\t- is release merged back into develop...')
+        last_commit = release.branch.commit.hexsha
+        release.merged_back = self._branch_contains_commit(
+            'develop', last_commit
+        )
+
+        return release
 
     def _get_latest_tag(self):
         tags = self.repo.tags.copy()
@@ -142,47 +215,27 @@ class Task:
 
         return tags[-1]
 
-    def _format_release_branch_name(self, version):
-        return 'release/{}'.format(version)
-
-    def _format_release_pr_name(self, version):
-        return 'Release {}'.format(version)
-
-    def _get_open_release_branch(self):
+    def _get_branch(self, name):
         branches = self.repo.remotes.origin.fetch()
 
         release_branches = [
             b
             for b in branches
-            if re.match(RELEASE_BRANCH_PATTERN, b.name)
+            if name in b.name
         ]
 
         if not any(release_branches):
             return None
 
-        release_branches.sort(
-            key=lambda b: (
-                    version_key(
-                        b.name.split('/')[-1].strip('v')
-                    )
-                )
-        )
+        return release_branches[0]
 
-        last_version = release_branches[-1].name.split('/')[-1].strip('v')
-        latest_tag_version = self.last_tag_name.strip('v')
-
-        if version_key(latest_tag_version) < version_key(last_version):
-            return release_branches[-1]
-
-        return None
-
-    def _get_open_release_pr(self):
+    def _get_open_pr(self, name):
         issues = list(self.github_repo.get_issues())
 
         open_prs = [
             issue.pull_request
             for issue in issues
-            if re.match(RELEASE_PR_PATTERN, issue.title)
+            if name == issue.title
         ]
 
         if not any(open_prs):
@@ -193,24 +246,22 @@ class Task:
             )
             return None
 
-        release_pr_data = open_prs[0].raw_data
-        release_pr_number = int(release_pr_data['url'].split('/')[-1])
+        pr = open_prs[0]
 
-        return self.github_repo.get_pull(
-            release_pr_number
-        )
+        pr_data = pr.raw_data
+        pr_number = int(pr_data['url'].split('/')[-1])
 
-    def _get_release_for_tag(self, tag):
+        return self.github_repo.get_pull(pr_number)
+
+    def _get_github_release(self, tag):
         try:
             return self.github_repo.get_release(tag)
         except:
             return None
 
-    def _checkout_and_pull(self, name):
-        _log.info('Checking out and pulling {}'.format(name))
-        branch = self.repo.heads.__getattr__(name)
+    def _checkout(self, name):
         try:
-            branch.checkout()
+            self.repo.git.checkout(name)
         except git.exc.GitCommandError:
             raise DennisException(
                 'Failed to checkout {}, most likely '
@@ -219,6 +270,8 @@ class Task:
                     name)
             )
 
+    def _checkout_and_pull(self, name):
+        self._checkout(name)
         self.repo.remotes.origin.pull(
             refspec='{0}:{0}'.format(self.repo.active_branch.name)
         )
@@ -234,6 +287,19 @@ class Task:
         git.Git(self.repo.working_dir).execute(
             ['git', 'commit', '-a', '-m', '"(dennis) {}"'.format(message)]
         )
+
+    def _branch_contains_commit(self, branch, commit):
+        output = git.Git(self.repo.working_dir).execute(
+            ['git', 'branch', '--contains', commit]
+        )
+        branches = output.split('\n')
+
+        if not any(branches):
+            return False
+
+        branches = [b.strip(' *\n\r') for b in branches]
+
+        return branch in branches
 
     def _push(self):
         _log.info('Pushing branch {} upstream'.format(
@@ -266,13 +332,21 @@ class Task:
         if not self.draft:
             if passed in ['passed', 'success']:
                 pull_request.merge()
+                return True
             else:
+                _log.error(
+                    'Build checks for PR {} did not pass'
+                    ', cannot merge',
+                    pull_request.title
+                )
                 raise DennisException(
                     'Build checks for PR "{}" didn\'t'
                     ' pass, not merging'.format(
                         pull_request.title
                     )
                 )
+
+        return False
 
     def _merge_branches(self, base, head, message):
         if not self.draft:
@@ -283,6 +357,11 @@ class Task:
             )
             self.github_repo.merge(
                 base, head, message
+            )
+            _log.info(
+                'Successfully merged'.format(
+                    head, base
+                )
             )
 
     def _have_checks_passed(self, pull_request):

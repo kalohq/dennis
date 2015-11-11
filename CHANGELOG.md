@@ -1,3 +1,27 @@
+## [v0.6.0](https://github.com/lystable/dennis/tree/v0.6.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.5.0...v0.6.0)
+
+**Added**:
+
+- Some more fixes 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#30](https://github.com/lystable/dennis/pull/30/))
+- Fix bugs 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#28](https://github.com/lystable/dennis/pull/28/))
+- Make idempotent 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#27](https://github.com/lystable/dennis/pull/27/))
+- Release v0.5.0 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#26](https://github.com/lystable/dennis/pull/26/))
+- Release v0.4.1 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#24](https://github.com/lystable/dennis/pull/24/))
+
+
+
 ## [v0.5.0](https://github.com/lystable/dennis/tree/v0.5.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.4.1...v0.5.0)

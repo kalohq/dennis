@@ -3,6 +3,7 @@ import logging
 from jinja2 import Template
 
 from .task import Task
+from .utils import format_release_pr_name
 
 _log = logging.getLogger(__name__)
 
@@ -16,8 +17,9 @@ class ReleaseTask(Task):
         Steps:
 
         - If no ongoing release, exit
-        - Checkout and pull release branch
         - Merge release PR into master if build passes
+        - Checkout and pull release branch
+        - Pull out the changelog
         - Create GitHub release using the latest changelog
         - Merge master back into develop
 
@@ -30,70 +32,90 @@ class ReleaseTask(Task):
         self.wait_for_minutes = wait_for_minutes
 
     def run(self):
-        # Is there a release?
-        if not self.release_branch_name:
-            _log.error(
-                'Could not find any ongoing release for {}.'
-                ' Have you run "dennis prepare" yet?'
-                .format(
-                    self.repo_name)
+
+        if not self.release:
+            _log.warn(
+                'Could not find an ongoing release for {} at version {}.'
+                ' Perhaps you haven\'t run "dennis prepare" yet?'
+                .format(self.repo_name, self.version)
+            )
+            _log.warn(
+                '\n\n\n'
+                'Alternatively, if you intended for a previous version,'
+                ' in project {}, then you can pick it up and finish the job'
+                ' by re-running "dennis release" with the option'
+                ' "--pickup <version>"'.format(self.repo_name)
             )
             return
 
-        # Checkout and pull the release branch
-        self._checkout_and_pull(
-            self.release_branch_name
-        )
-
         # Merge PR into master
-        if not self.release_pr.is_merged():
-            _log.info('Pull request "{}" in {} is mergeable, merging'.format(
-                self.release_pr.title,
-                self.repo_name
-            ))
-            self._merge(
-                self.release_pr, wait_for_minutes=self.wait_for_minutes)
+        if self.release.pr and not self.release.pr.is_merged():
+            _log.info(
+                'About to merge release PR into master:'
+                ' project = {}, title = {}...'.format(
+                    self.repo_name, self.release.pr.title
+                )
+            )
+            merged = self._merge(
+                self.release.pr, wait_for_minutes=self.wait_for_minutes)
+            if merged:
+                _log.info('Release PR is merged')
 
-        # Publish release
-        #
-        # Method Signature (thanks for the docs @PyGithub)
-        #
-        # create_git_tag_and_release(
-        #    self, tag, tag_message, release_name, release_message, object,
-        #    type, tagger=github.GithubObject.NotSet,
-        #    draft=False, prerelease=False
-        # ):
-        last_commit_id = self.repo.heads.master.commit.hexsha
+        # Merge master into develop
+        if not self.release.merged_back:
+            self._merge_branches(
+                'develop', 'master', '(dennis) Master back into Develop'
+            )
+
+        # Checkout release
+        _log.info('Checking out and pulling release branch: {}'.format(
+            self.release.name
+        ))
+        self._checkout_and_pull(self.release.name)
+
+        # Pull out changelog
         changelog = self._get_release_changelog(
-            self.last_tag_name, self.release_tag_name,
+            self.last_version, self.version,
             self.repo_name, self.repo_owner
         )
 
+        # Get latest master commit ID
+        _log.info('Checking out master, to find last commit')
+        self._checkout('master')
+        last_commit_id = self.repo.heads.master.commit.hexsha
+
         # Not making releases draft-able as this introduces complication
         # when handling the real release
-        release_url = 'N/A'
+        github_release_url = 'N/A'
         if (
-            not self.release and
+            not self.release.github_release and
             not self.draft
         ):
+            # Method Signature (thanks for the docs @PyGithub)
+            #
+            # create_git_tag_and_release(
+            #    self, tag, tag_message, release_name, release_message, object,
+            #    type, tagger=github.GithubObject.NotSet,
+            #    draft=False, prerelease=False
+            # ):
+            #
+            # Publish release
+            #
+            _log.info('Creating GitHub release...')
             release = self.github_repo.create_git_tag_and_release(
-                self.release_tag_name,
-                '', self.release_pr.title,
+                self.release.version,
+                '', format_release_pr_name(self.release.version),
                 changelog, last_commit_id, 'commit'
             )
-            release_url = release.raw_data['html_url']
-
-        # Merge master into develop
-        self._merge_branches(
-            'develop', 'master', '(dennis) Master back into Develop'
-        )
+            github_release_url = release.raw_data['html_url']
+            _log.info('GitHub release created')
 
         # Done
         _log.info(
             '{} is merged into master, and develop has'
             ' been updated. \n\nSee the latest published release @ {}'.format(
-                self.release_pr.title,
-                release_url)
+                format_release_pr_name(self.release.version),
+                github_release_url)
         )
 
     def _get_release_changelog(

@@ -5,7 +5,10 @@ import logging
 from .utils import (
     version_key,
     run_command, VERSION_REGEX,
-    DennisException
+    DennisException,
+    get_next_version_options,
+    format_release_branch_name,
+    format_release_pr_name
 )
 from .task import Task
 
@@ -31,32 +34,11 @@ class PrepareTask(Task):
     has_release_script = None
 
     def __init__(
-        self, new_version=None, branch=None,
-        new_version_type=None, **kwargs
+        self, branch=None, **kwargs
     ):
         super().__init__(**kwargs)
-        self.new_version = new_version
 
-        # Either --version is specified
-        if self.new_version:
-
-            if not re.match(re.compile(VERSION_REGEX), self.new_version):
-                raise DennisException(
-                    'Provided version {} does not '
-                    'conform with format "vX.Y.Z"'.format(
-                        self.new_version
-                    )
-                )
-            self.branch = branch or 'master'
-
-        # Or --version-type is specified
-        elif new_version_type:
-
-            self.new_version_type = new_version_type
-            if new_version_type == 'hotfix':
-                self.branch = 'master'
-            else:
-                self.branch = 'develop'
+        self.branch = branch
 
         self.release_script_path = os.path.join(
             self.repo.working_dir, self.release_script_name
@@ -64,38 +46,28 @@ class PrepareTask(Task):
         self.has_release_script = os.path.isfile(self.release_script_path)
 
     def run(self):
-        _log.info('The last tag in this repo is {}'.format(
-            self.last_tag_name
-        ))
-
-        # If remote branch exists
-        if self.release_branch:
-            raise DennisException(
-                'A release branch seems to be ongoing already {}'
-                '\n\nPlease checkout that branch'
-                ' and continue by making code fixes to it until you hit'
-                ' "dennis release"'
-                '\n\nAlternatively hit "dennis startover (coming soon!)"'
-                ' in order to delete any existing release'
-                ' PR and branch'.format(self.release_branch_name)
+        if self.release:
+            _log.warn(
+                'This release seems to be already ongoing, continuing'
+                ' to cover any missed steps'
             )
 
         # Get new version
-        new_version = self.new_version
+        new_version = self.version
 
-        # Upgrade based on version type
-        if new_version is None and self.new_version_type is not None:
-            new_version = self._get_version_upgrade_choices(
-                self.last_tag_name
-            )[self.new_version_type]
-
-        # New branch name
-        release_branch_name = self._format_release_branch_name(
-            new_version
-        )
+        # Release branch name
+        if self.release:
+            release_branch_name = self.release.name
+        else:
+            release_branch_name = format_release_branch_name(
+                new_version
+            )
 
         # If local branch exists
-        if self._does_local_branch_exist(release_branch_name):
+        if (
+            not self.release and
+            self._does_local_branch_exist(release_branch_name)
+        ):
             _log.warn(
                 'Found local branch with the same'
                 ' name {}, deleting that stuff'.format(
@@ -105,57 +77,70 @@ class PrepareTask(Task):
             self.repo.delete_head(release_branch_name, '-D')
 
         # Checkout the source branch
+        _log.info('Checking out and pulling source branch: {}'.format(
+            self.branch))
         self._checkout_and_pull(self.branch)
 
         # Create release branch
-        _log.info('Creating new release branch with version {}'.format(
-            new_version
-        ))
-        release_branch = self.repo.create_head(
-            release_branch_name
-        )
-        release_branch.checkout()
+        if not (self.release and self.release.branch):
+            _log.info('Creating new release branch with version {}'.format(
+                new_version
+            ))
+            release_branch = self.repo.create_head(
+                release_branch_name
+            )
+
+        # Checkout release branch
+        _log.info('Checking out release branch: {}'.format(
+            release_branch_name))
+        self._checkout(release_branch_name)
 
         # Bump the version etc.
-        if self.has_release_script:
-            _log.info('Running {} script inside {}'.format(
-                self.release_script_name, self.repo_name
-            ))
-            output, success, return_code = run_command(
-                [
-                    self.release_script_path,
-                    self.last_tag_name,
-                    new_version
-                ],
-                cwd=self.repo.working_dir
-            )
-            if not success:
-                raise DennisException(
-                    'Failed to run release script {} with code {}'
-                    ' and output {}'.format(
-                        self.release_script_path, return_code, output
-                    )
+        if not self.release:
+            if self.has_release_script:
+                _log.info('Running {} script inside {}'.format(
+                    self.release_script_name, self.repo_name
+                ))
+                output, success, return_code = run_command(
+                    [
+                        self.release_script_path,
+                        self.last_version,
+                        new_version
+                    ],
+                    cwd=self.repo.working_dir
                 )
-        else:
-            _log.warn(
-                'No release script ({}) was found in the project root'.format(
-                    self.release_script_name))
+                if not success:
+                    raise DennisException(
+                        'Failed to run release script {} with code {}'
+                        ' and output {}'.format(
+                            self.release_script_path, return_code, output
+                        )
+                    )
+            else:
+                _log.warn(
+                    'No release script ({}) was found'
+                    ' in the project root'.format(
+                        self.release_script_name))
 
-        # Generate the changelog
-        self._add_changelog(new_version)
+        if not self.release:
+            # Generate the changelog
+            self._add_changelog(new_version)
 
-        # Commit changes
-        self._commit_all('Initial Release Commit')
+            # Commit changes
+            self._commit_all('Initial Release Commit')
 
-        # Push upstream
-        _log.info('Pushing new release branch upstream')
-        self._push()
+            # Push upstream
+            _log.info('Pushing new release branch upstream')
+            self._push()
 
         # Create pull request
-        release_pr = self.github_repo.create_pull(
-            self._format_release_pr_name(new_version), '',
-            'master', self.repo.active_branch.name
-        )
+        if not (self.release and self.release.pr):
+            release_pr = self.github_repo.create_pull(
+                format_release_pr_name(new_version), '',
+                'master', self.repo.active_branch.name
+            )
+        else:
+            release_pr = self.release.pr
 
         # Done
         _log.info(
@@ -173,7 +158,7 @@ class PrepareTask(Task):
             self.github_user, '-q',
             '-t', self.github_token,
             '{}/{}'.format(self.repo_owner, self.repo_name),
-            self.last_tag_name or 'v0.0.0',
+            self.last_version or 'v0.0.0',
             new_version
         ]
 
@@ -209,29 +194,3 @@ class PrepareTask(Task):
 
     def _does_local_branch_exist(self, name):
         return len([head for head in self.repo.heads if head.name == name]) > 0
-
-    def _get_version_upgrade_choices(self, version):
-        version = version or 'v0.0.0'
-        version = version.strip('v')
-
-        UPGRADES = {
-            'major': 0,
-            'minor': 1,
-            'hotfix': 2
-        }
-
-        def recompile(key):
-            return 'v' + ('.'.join(map(str, key)))
-
-        def upgrade(key, type):
-            key[UPGRADES[type]] += 1
-            for lower_key in range(UPGRADES[type] + 1, len(key)):
-                key[lower_key] = 0
-            return key
-
-        key = version_key(version)
-
-        return {
-            k: recompile(upgrade(key.copy(), k))
-            for k, v in UPGRADES.items()
-        }
