@@ -1,3 +1,15 @@
+## [v0.6.1](https://github.com/lystable/dennis/tree/v0.6.1) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.6.0...v0.6.1)
+
+**Added**:
+
+- Remove extra logs 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#32](https://github.com/lystable/dennis/pull/32/))
+
+
+
 ## [v0.6.0](https://github.com/lystable/dennis/tree/v0.6.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.5.0...v0.6.0)
