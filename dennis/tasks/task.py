@@ -143,7 +143,7 @@ class Task:
             )
 
         _log.info('Last release version in {}: {}'.format(
-            self.repo_name, self.last_version
+            self.repo_name, last_tag.name
         ))
 
         self.last_version = last_tag.name
