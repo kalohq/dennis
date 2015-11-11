@@ -169,26 +169,27 @@ class Task:
 
         _log.info(
             'Gathering release artifacts'
-            ' in project {} for version {}...'.format(
+            ' in project {} for version {}:'.format(
                 self.repo_name, release.version)
         )
 
+        _log.info('\t- release branch...')
         release.branch = self._get_branch(release.name)
 
         if not release.branch:
             return None
 
-        _log.info('Found release branch. Searching for matching PR...')
+        _log.info('\t- release PR...')
         release.pr = self._get_open_pr(
             format_release_pr_name(release.version)
         )
 
-        _log.info('Searching for matching GitHub release...')
+        _log.info('\t- GitHub release...')
         release.github_release = self._get_github_release(
             release.version
         )
 
-        _log.info('Checking if release has been merged back...')
+        _log.info('\t- is release merged back into develop...')
         last_commit = release.branch.commit.hexsha
         release.merged_back = self._branch_contains_commit(
             'develop', last_commit
@@ -284,8 +285,6 @@ class Task:
         )
 
     def _branch_contains_commit(self, branch, commit):
-        import pdb
-        pdb.set_trace()
         output = git.Git(self.repo.working_dir).execute(
             ['git', 'branch', '--contains', commit]
         )
