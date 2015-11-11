@@ -7,7 +7,8 @@ from .utils import (
     run_command, VERSION_REGEX,
     DennisException,
     get_next_version_options,
-    format_release_branch_name
+    format_release_branch_name,
+    format_release_pr_name
 )
 from .task import Task
 
@@ -134,7 +135,7 @@ class PrepareTask(Task):
         # Create pull request
         if not (self.release and self.release.pr):
             release_pr = self.github_repo.create_pull(
-                self._format_release_pr_name(new_version), '',
+                format_release_pr_name(new_version), '',
                 'master', self.repo.active_branch.name
             )
         else:
