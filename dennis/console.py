@@ -1,3 +1,4 @@
+import re
 import sys
 import argparse
 import logging
@@ -92,16 +93,21 @@ def main():
 
     args = parser.parse_args()
 
+    configure_logging(args.draft)
+
     if not args.github_user:
         _log.error('GitHub username argument --user must be provided')
         sys.exit(1)
 
-    if args.action == 'prepare' and not (args.type or args.version):
+    if not args.type and not args.version:
         _log.error(
             'One of release type --type or'
             ' release version --version must be provided'
         )
         sys.exit(1)
+
+    if args.version:
+        args.type = None
 
     if args.version and not args.branch:
         _log.warn(
@@ -114,11 +120,31 @@ def main():
 
     action = args.action
 
-    configure_logging(args.draft)
+    # Either --version is specified
+    if args.version:
+
+        if not re.match(
+            re.compile(tasks.VERSION_REGEX), args.version
+        ):
+            _log.error(
+                'Provided version {} does not '
+                'conform with format "vX.Y.Z"'.format(
+                    args.version
+                )
+            )
+            sys.exit(1)
+        args.branch = args.branch or 'master'
+
+    # Or --version-type is specified
+    elif args.type:
+        if args.type == 'hotfix':
+            args.branch = 'master'
+        else:
+            args.branch = 'develop'
 
     task = tasks.TASKS[action](
-        new_version=args.version,
-        new_version_type=args.type,
+        version=args.version,
+        version_type=args.type,
         branch=args.branch,
         project_dir=args.project_dir,
         github_user=args.github_user,
