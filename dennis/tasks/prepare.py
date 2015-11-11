@@ -97,29 +97,31 @@ class PrepareTask(Task):
         self._checkout(release_branch_name)
 
         # Bump the version etc.
-        if not self.release and self.has_release_script:
-            _log.info('Running {} script inside {}'.format(
-                self.release_script_name, self.repo_name
-            ))
-            output, success, return_code = run_command(
-                [
-                    self.release_script_path,
-                    self.last_version,
-                    new_version
-                ],
-                cwd=self.repo.working_dir
-            )
-            if not success:
-                raise DennisException(
-                    'Failed to run release script {} with code {}'
-                    ' and output {}'.format(
-                        self.release_script_path, return_code, output
-                    )
+        if not self.release:
+            if self.has_release_script:
+                _log.info('Running {} script inside {}'.format(
+                    self.release_script_name, self.repo_name
+                ))
+                output, success, return_code = run_command(
+                    [
+                        self.release_script_path,
+                        self.last_version,
+                        new_version
+                    ],
+                    cwd=self.repo.working_dir
                 )
-        else:
-            _log.warn(
-                'No release script ({}) was found in the project root'.format(
-                    self.release_script_name))
+                if not success:
+                    raise DennisException(
+                        'Failed to run release script {} with code {}'
+                        ' and output {}'.format(
+                            self.release_script_path, return_code, output
+                        )
+                    )
+            else:
+                _log.warn(
+                    'No release script ({}) was found'
+                    ' in the project root'.format(
+                        self.release_script_name))
 
         if not self.release:
             # Generate the changelog
