@@ -46,14 +46,10 @@ class PrepareTask(Task):
         self.has_release_script = os.path.isfile(self.release_script_path)
 
     def run(self):
-        _log.info('The last release version in this repo is {}'.format(
-            self.last_version
-        ))
-
         if self.release:
             _log.warn(
                 'This release seems to be already ongoing, continuing'
-                ' to cover any missed steps...'
+                ' to cover any missed steps'
             )
 
         # Get new version
@@ -68,7 +64,10 @@ class PrepareTask(Task):
             )
 
         # If local branch exists
-        if self._does_local_branch_exist(release_branch_name):
+        if (
+            not self.release and
+            self._does_local_branch_exist(release_branch_name)
+        ):
             _log.warn(
                 'Found local branch with the same'
                 ' name {}, deleting that stuff'.format(

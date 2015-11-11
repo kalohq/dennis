@@ -142,6 +142,10 @@ class Task:
                 ' one tag, sorry!'
             )
 
+        _log.info('Last release version in {}: {}'.format(
+            self.repo_name, self.last_version
+        ))
+
         self.last_version = last_tag.name
         self.version = version
 
