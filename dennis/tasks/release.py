@@ -68,9 +68,6 @@ class ReleaseTask(Task):
             )
 
         # Checkout release
-        _log.info('Checking out and pulling release branch: {}'.format(
-            self.release.name
-        ))
         self._checkout_and_pull(self.release.name)
 
         # Pull out changelog
@@ -80,7 +77,6 @@ class ReleaseTask(Task):
         )
 
         # Get latest master commit ID
-        _log.info('Checking out master, to find last commit')
         self._checkout('master')
         last_commit_id = self.repo.heads.master.commit.hexsha
 
