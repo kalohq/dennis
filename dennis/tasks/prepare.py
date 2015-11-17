@@ -40,8 +40,7 @@ class PrepareTask(Task):
         self, branch=None, **kwargs
     ):
         super().__init__(**kwargs)
-        import pdb
-        pdb.set_trace()
+
         # Validate branch value against planned version value
         next_version_options = get_next_version_options(self.last_version)
         release_type = [
@@ -129,12 +128,9 @@ class PrepareTask(Task):
             _log.info('Creating new release branch with version {}'.format(
                 new_version
             ))
-            release_branch = self.repo.create_head(
-                release_branch_name
-            )
-            import pdb
-            pdb.set_trace()
-            release_branch.set_tracking_branch(self.repo.origin.refs.maste)
+            release_branch = self.repo.create_head(release_branch_name)
+        else:
+            release_branch = self.release.branch
 
         # Checkout release branch
         _log.info('Checking out release branch: {}'.format(
@@ -178,6 +174,18 @@ class PrepareTask(Task):
             # Push upstream
             _log.info('Pushing new release branch upstream')
             self._push()
+
+            # Setting upstream for convenience
+            self.repo.remotes.origin.fetch()
+            refs = [
+                r
+                for r in self.repo.remotes.origin.refs
+                if r.name == 'origin/{}'.format(release_branch_name)
+            ]
+            if any(refs):
+                release_branch.set_tracking_branch(
+                    refs[0]
+                )
 
         # Create pull request
         if not (self.release and self.release.pr):
