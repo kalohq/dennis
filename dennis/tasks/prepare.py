@@ -89,6 +89,9 @@ class PrepareTask(Task):
             release_branch = self.repo.create_head(
                 release_branch_name
             )
+            import pdb
+            pdb.set_trace()
+            release_branch.set_tracking_branch(self.repo.origin.refs.maste)
 
         # Checkout release branch
         _log.info('Checking out release branch: {}'.format(

@@ -50,8 +50,7 @@ def main():
     parser.add_argument(
         '--branch',
         default=None,
-        help='Branch from which to create a new release.'
-        ' Used only when --version is specified. Default is master.'
+        help='Branch from which to create a new release'
     )
 
     parser.add_argument(
@@ -137,10 +136,11 @@ def main():
 
     # Or --version-type is specified
     elif args.type:
-        if args.type == 'hotfix':
-            args.branch = 'master'
-        else:
-            args.branch = 'develop'
+        if not args.branch:
+            if args.type == 'hotfix':
+                args.branch = 'master'
+            else:
+                args.branch = 'develop'
 
     task = tasks.TASKS[action](
         version=args.version,
