@@ -21,13 +21,13 @@ You'll need to run any `dennis` commands from within the Git project you wish to
 - Prepare a release:
 
 ```
-dennis prepare --type fix --user <your username>
+dennis prepare --type minor --user <your username>
 ```
 
 - Draft a release:
 
 ```
-dennis release --user <your username> --draft
+dennis release --type minor --user <your username> --draft
 ```
 
 This will not merge any PRs, but it's useful for ensuring the current release state is retrieved normally.
@@ -35,8 +35,47 @@ This will not merge any PRs, but it's useful for ensuring the current release st
 - Complete a release:
 
 ```
-dennis release --user <your username>
+dennis release --type minor --user <your username>
 ```
+
+## [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow)-esque Use Cases
+
+### Create and Release a normal (minor) release
+```
+# Step 1
+dennis prepare --type minor --user yannispanousis
+#
+# ... QA cycle ...
+#
+# Step 2
+dennis release --type minor --user yannispanousis
+```
+
+### Create and Release a hotfix release
+
+```
+# Step 1
+dennis prepare --type hotfix --user yannispanousis
+#
+# ... QA cycle ...
+#
+# Step 2
+dennis release --type hotfix --user yannispanousis
+```
+
+### Create and Release a hotfix with the contents of another branch
+
+```
+# Step 1
+dennis prepare --type hotfix --user yannispanousis --branch <a published branch name>
+#
+# ... QA cycle ...
+#
+# Step 2
+dennis release --type hotfix --user yannispanousis
+```
+
+**Please Note:** `dennis` doesn't validate that this provided branch is based off master (which it should be, for hotfixes, according to GitFlow). So you must carefully inspect the release PR you will be creating and make sure there are no unwanted changes.
 
 ## Extras
 
