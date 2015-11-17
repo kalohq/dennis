@@ -1,12 +1,10 @@
 import os
-import re
 import logging
 
 from .utils import (
-    version_key,
-    run_command, VERSION_REGEX,
-    DennisException,
+    run_command,
     get_next_version_options,
+    DennisException,
     format_release_branch_name,
     format_release_pr_name
 )
@@ -15,6 +13,11 @@ from .task import Task
 _log = logging.getLogger(__name__)
 
 RELEASE_TYPES = ['major', 'minor', 'hotfix']
+ALLOWED_BRANCHES = {
+    'major': ['develop'],
+    'minor': ['develop'],
+    'hotfix': ['master']
+}
 
 
 class PrepareTask(Task):
@@ -37,6 +40,45 @@ class PrepareTask(Task):
         self, branch=None, **kwargs
     ):
         super().__init__(**kwargs)
+
+        # Validate branch value against planned version value
+        next_version_options = get_next_version_options(self.last_version)
+        release_type = [
+            release_type
+            for release_type, release_version in next_version_options.items()
+            if release_version == self.version
+        ]
+
+        # Validate the version upgrading to is one of the
+        # expected next versions
+        if not any(release_type):
+            message = (
+                'The version you are trying to upgrade to ({})'
+                ' is not one of the expected next versions: {}'.format(
+                    self.version, list(next_version_options.values())
+                )
+            )
+            _log.error(message)
+            raise DennisException(message)
+
+        release_type = release_type[0]
+
+        # Validate the source branch being used for the new release branch
+        # is one of the expected branches for this release type
+        if not branch == 'develop':
+            ALLOWED_BRANCHES['hotfix'].append(branch)
+        if branch not in ALLOWED_BRANCHES[release_type]:
+            message = (
+                'With a release type "{}" ({} -> {}) you are not allowed'
+                ' to branch off "{}". The branches you can use are: {}.'
+                ' If you are creating a hotfix, you may use master or any'
+                ' non-develop branch'.format(
+                    release_type, self.last_version, self.version,
+                    branch, ALLOWED_BRANCHES[release_type]
+                )
+            )
+            _log.error(message)
+            raise DennisException(message)
 
         self.branch = branch
 
@@ -86,9 +128,9 @@ class PrepareTask(Task):
             _log.info('Creating new release branch with version {}'.format(
                 new_version
             ))
-            release_branch = self.repo.create_head(
-                release_branch_name
-            )
+            release_branch = self.repo.create_head(release_branch_name)
+        else:
+            release_branch = self.release.branch
 
         # Checkout release branch
         _log.info('Checking out release branch: {}'.format(
@@ -132,6 +174,18 @@ class PrepareTask(Task):
             # Push upstream
             _log.info('Pushing new release branch upstream')
             self._push()
+
+            # Setting upstream for convenience
+            self.repo.remotes.origin.fetch()
+            refs = [
+                r
+                for r in self.repo.remotes.origin.refs
+                if r.name == 'origin/{}'.format(release_branch_name)
+            ]
+            if any(refs):
+                release_branch.set_tracking_branch(
+                    refs[0]
+                )
 
         # Create pull request
         if not (self.release and self.release.pr):

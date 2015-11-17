@@ -188,15 +188,15 @@ class Task:
             format_release_pr_name(release.version)
         )
 
-        _log.info('\t- GitHub release...')
-        release.github_release = self._get_github_release(
-            release.version
-        )
-
         _log.info('\t- is release merged back into develop...')
         last_commit = release.branch.commit.hexsha
         release.merged_back = self._branch_contains_commit(
             'develop', last_commit
+        )
+
+        _log.info('\t- GitHub release...')
+        release.github_release = self._get_github_release(
+            release.version
         )
 
         return release
