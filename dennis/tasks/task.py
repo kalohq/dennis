@@ -132,7 +132,7 @@ class Task:
 
         # Checkout latest changes for this repo
         _log.info('Checking out and pulling develop')
-        # self._checkout_and_pull('develop')
+        self._checkout_and_pull('develop')
 
         last_tag = self._get_latest_tag()
 
