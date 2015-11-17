@@ -1,3 +1,15 @@
+## [v0.7.0](https://github.com/lystable/dennis/tree/v0.7.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.6.1...v0.7.0)
+
+**Added**:
+
+- Make lenient on hotfix with custom branch 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#36](https://github.com/lystable/dennis/pull/36/))
+
+
+
 ## [v0.6.1](https://github.com/lystable/dennis/tree/v0.6.1) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.6.0...v0.6.1)
