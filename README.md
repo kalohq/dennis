@@ -51,19 +51,7 @@ dennis prepare --type minor --user yannispanousis
 dennis release --type minor --user yannispanousis
 ```
 
-### Create and Release a hotfix release
-
-```
-# Step 1
-dennis prepare --type hotfix --user yannispanousis
-#
-# ... QA cycle ...
-#
-# Step 2
-dennis release --type hotfix --user yannispanousis
-```
-
-### Create and Release a hotfix with the contents of another branch
+### Create and Release a hotfix
 
 ```
 # Step 1
