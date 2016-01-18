@@ -1,3 +1,12 @@
+## [v0.8.0](https://github.com/lystable/dennis/tree/v0.8.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.7.0...v0.8.0)
+
+**Added**:
+
+
+
+
 ## [v0.7.0](https://github.com/lystable/dennis/tree/v0.7.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.6.1...v0.7.0)
