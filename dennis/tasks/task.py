@@ -189,7 +189,7 @@ class Task:
         )
 
         _log.info('\t- is release merged back into develop...')
-        last_commit = release.branch.commit.hexsha
+        last_commit = release.branch[0].commit.hexsha
         release.merged_back = self._branch_contains_commit(
             'develop', last_commit
         )
@@ -216,18 +216,10 @@ class Task:
         return tags[-1]
 
     def _get_branch(self, name):
-        branches = self.repo.remotes.origin.fetch()
-
-        release_branches = [
-            b
-            for b in branches
-            if name in b.name
-        ]
-
-        if not any(release_branches):
+        try:
+            return self.repo.remotes.origin.fetch(refspec=name)
+        except git.exc.GitCommandError:
             return None
-
-        return release_branches[0]
 
     def _get_open_pr(self, name):
         issues = list(self.github_repo.get_issues())
