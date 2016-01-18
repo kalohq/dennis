@@ -189,7 +189,7 @@ class Task:
         )
 
         _log.info('\t- is release merged back into develop...')
-        last_commit = release.branch.commit.hexsha
+        last_commit = release.branch[0].commit.hexsha
         release.merged_back = self._branch_contains_commit(
             'develop', last_commit
         )
