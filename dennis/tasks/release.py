@@ -95,7 +95,8 @@ class ReleaseTask(Task):
             release = self.github_repo.create_git_tag_and_release(
                 self.release.version,
                 '', format_release_pr_name(self.release.version),
-                changelog, last_commit_id, 'commit'
+                changelog, last_commit_id, 'commit',
+                target_commitish=last_commit_id
             )
             github_release_url = release.raw_data['html_url']
             _log.info('GitHub release created')
