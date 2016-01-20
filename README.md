@@ -16,6 +16,16 @@ cd dennis
 python3 setup.py develop
 ```
 
+- Upgrade to a newer version:
+
+```
+# Upgrade
+cd dennis
+git checkout develop
+git pull
+python3 setup.py develop
+```
+
 You'll need to run any `dennis` commands from within the Git project you wish to release.
 
 - Prepare a release:
