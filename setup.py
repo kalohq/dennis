@@ -32,7 +32,7 @@ setup(
         'coloredlogs'
     ],
     dependency_links=[
-        'https://github.com/PyGithub/PyGithub/archive/c7a85c0d7b5c0b36d5f48a50008d0e15fb900d8c.zip#egg=PyGithub',
+        'https://github.com/lystable/PyGithub/archive/ca6d43eb3b6ee14637940988fd4ac7eb3c207c79.zip#egg=PyGithub',
         'https://github.com/lystable/sawyer/archive/develop.zip#egg=sawyer'
     ],
     entry_points={
