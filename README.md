@@ -73,3 +73,4 @@ dennis release --type hotfix --user yannispanousis
 ```
 dennis prepare --version v53.69.999 --branch feature/please-avoid-this-dangerous-workflow
 ```
+

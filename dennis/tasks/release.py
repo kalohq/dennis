@@ -61,12 +61,6 @@ class ReleaseTask(Task):
             if merged:
                 _log.info('Release PR is merged')
 
-        # Merge master into develop
-        if not self.release.merged_back:
-            self._merge_branches(
-                'develop', 'master', '(dennis) Master back into Develop'
-            )
-
         # Checkout release
         self._checkout_and_pull(self.release.name)
 
@@ -105,6 +99,12 @@ class ReleaseTask(Task):
             )
             github_release_url = release.raw_data['html_url']
             _log.info('GitHub release created')
+
+        # Merge master into develop
+        if not self.release.merged_back:
+            self._merge_branches(
+                'develop', 'master', '(dennis) Master back into Develop'
+            )
 
         # Done
         _log.info(
