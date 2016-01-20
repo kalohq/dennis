@@ -71,7 +71,7 @@ class ReleaseTask(Task):
         )
 
         # Get latest master commit ID
-        self._checkout('master')
+        self._checkout_and_pull('master')
         last_commit_id = self.repo.heads.master.commit.hexsha
 
         # Not making releases draft-able as this introduces complication

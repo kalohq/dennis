@@ -1,3 +1,18 @@
+## [v0.8.3](https://github.com/lystable/dennis/tree/v0.8.3) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.8.2...v0.8.3)
+
+**Added**:
+
+- Feature: Should SO not be in commit log 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#49](https://github.com/lystable/dennis/pull/49/))
+- Release v0.8.2 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#47](https://github.com/lystable/dennis/pull/47/))
+
+
+
 ## [v0.8.2](https://github.com/lystable/dennis/tree/v0.8.2) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.8.1...v0.8.2)
