@@ -1,3 +1,18 @@
+## [v0.9.0](https://github.com/lystable/dennis/tree/v0.9.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.8.3...v0.9.0)
+
+**Added**:
+
+- Use the target_commitish parameter of the GitHub API to specify 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#51](https://github.com/lystable/dennis/pull/51/))
+- Release v0.8.3 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#50](https://github.com/lystable/dennis/pull/50/))
+
+
+
 ## [v0.8.3](https://github.com/lystable/dennis/tree/v0.8.3) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.8.2...v0.8.3)
