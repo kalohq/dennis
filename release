@@ -24,4 +24,3 @@ with open(VERSION_FILE, 'r') as version_file:
 with open(VERSION_FILE, 'w') as version_file:
     for line in lines:
         version_file.write(line.replace(old_version, new_version))
-
