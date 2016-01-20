@@ -1,3 +1,15 @@
+## [v0.8.1](https://github.com/lystable/dennis/tree/v0.8.1) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.8.0...v0.8.1)
+
+**Added**:
+
+- Move merging of master into develop after the tagging 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#44](https://github.com/lystable/dennis/pull/44/))
+
+
+
 ## [v0.8.0](https://github.com/lystable/dennis/tree/v0.8.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.7.0...v0.8.0)
