@@ -1,3 +1,18 @@
+## [v0.9.1](https://github.com/lystable/dennis/tree/v0.9.1) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.9.0...v0.9.1)
+
+**Added**:
+
+- Add support for reading a RELEASE.md file and using it as the pr desc… 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#53](https://github.com/lystable/dennis/pull/53/))
+- Release v0.9.0 
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#52](https://github.com/lystable/dennis/pull/52/))
+
+
+
 ## [v0.9.0](https://github.com/lystable/dennis/tree/v0.9.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.8.3...v0.9.0)
