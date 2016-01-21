@@ -37,7 +37,7 @@ class PrepareTask(Task):
     has_release_script = None
 
     def __init__(
-        self, branch=None, **kwargs
+        self, branch=None, release_md=True, **kwargs
     ):
         super().__init__(**kwargs)
 
@@ -189,9 +189,16 @@ class PrepareTask(Task):
 
         # Create pull request
         if not (self.release and self.release.pr):
+            release_pr_description = ''
+
+            if self.release_md:
+                with open('RELEASE.md', 'r') as release_md:
+                    release_pr_description = release_md.read()
+
             release_pr = self.github_repo.create_pull(
-                format_release_pr_name(new_version), '',
-                'master', self.repo.active_branch.name
+                format_release_pr_name(new_version),
+                release_pr_description, 'master',
+                self.repo.active_branch.name
             )
         else:
             release_pr = self.release.pr
