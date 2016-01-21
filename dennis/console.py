@@ -90,6 +90,15 @@ def main():
         'build to pass when trying to merge PR'
     )
 
+    parser.add_argument(
+        '--no-release-md',
+        dest='no_release_md',
+        action='store_true',
+        default=False,
+        help='Do not use a RELEASE.md file for the'
+        ' release PR description'
+    )
+
     args = parser.parse_args()
 
     configure_logging(args.draft)
@@ -150,7 +159,8 @@ def main():
         github_user=args.github_user,
         github_token=github_token,
         draft=args.draft,
-        wait_for_minutes=args.build_timeout
+        wait_for_minutes=args.build_timeout,
+        release_md=not args.no_release_md
     )
 
     task.run()

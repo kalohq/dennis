@@ -81,6 +81,7 @@ class PrepareTask(Task):
             raise DennisException(message)
 
         self.branch = branch
+        self.release_md = release_md
 
         self.release_script_path = os.path.join(
             self.repo.working_dir, self.release_script_name
