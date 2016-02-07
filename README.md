@@ -5,14 +5,22 @@
 - Checkout and Install:
 
 ```
-# Install sawyer manually (this needs fixing, probably a PR to sawyer)
+# Install sawyer
 git clone https://github.com/lystable/sawyer sawyer
 cd sawyer
 python3 setup.py develop
 
-# Install dennis
-git clone https://github.com/lystable/dennis dennis
+# Install or Upgrade dennis
+pip install -U dennis
+```
+
+- Upgrade to a newer version:
+
+```
+# Upgrade
 cd dennis
+git checkout develop
+git pull
 python3 setup.py develop
 ```
 
