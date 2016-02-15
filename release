@@ -9,14 +9,14 @@ import sys
 
 
 def update_version(filename, old_version, new_version):
-    version_file = os.path.join(
+    filename = os.path.join(
         os.getcwd(), filename
     )
 
-    with open(file, 'r') as version_file:
+    with open(filename, 'r') as version_file:
         lines = version_file.readlines()
 
-    with open(file, 'w') as version_file:
+    with open(filename, 'w') as version_file:
         for line in lines:
             version_file.write(line.replace(old_version, new_version))
 
