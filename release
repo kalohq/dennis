@@ -30,5 +30,4 @@ if __name__ == '__main__':
     old_version = sys.argv[1].strip('v')
     new_version = sys.argv[2].strip('v')
 
-    update_version('VERSION', old_version, new_version)
     update_version('setup.py', old_version, new_version)
