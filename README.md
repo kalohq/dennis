@@ -14,16 +14,6 @@ python3 setup.py develop
 pip install -U dennis
 ```
 
-- Upgrade to a newer version:
-
-```
-# Upgrade
-cd dennis
-git checkout develop
-git pull
-python3 setup.py develop
-```
-
 You'll need to run any `dennis` commands from within the Git project you wish to release.
 
 - Prepare a release:
@@ -80,4 +70,20 @@ dennis release --type hotfix --user yannispanousis
 
 ```
 dennis prepare --version v53.69.999 --branch feature/please-avoid-this-dangerous-workflow
+```
+
+# PyPI Update
+
+Having followed this [guide](http://peterdowns.com/posts/first-time-with-pypi.html)
+
+## Test
+
+```
+python setup.py sdist upload -r pypitest
+```
+
+## Real
+
+```
+python setup.py sdist upload -r pypi
 ```

@@ -8,14 +8,9 @@ try:
 except IOError:
     README = ''
 
-
-def get_version():
-    with open('VERSION', 'r') as f:
-        return f.read().strip(' \n\rv')
-
 setup(
-    name='dennis',
-    version=get_version(),
+    name='GitflowDennis',
+    version='0.11.0',
     description='Dennis the release helper',
     packages=['dennis'],
     long_description=README,
