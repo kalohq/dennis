@@ -10,7 +10,7 @@ except IOError:
 
 setup(
     name='GitflowDennis',
-    version='0.10.0',
+    version='0.11.0',
     description='Dennis the release helper',
     packages=['dennis'],
     long_description=README,
