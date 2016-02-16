@@ -11,7 +11,7 @@ cd sawyer
 python3 setup.py develop
 
 # Install or Upgrade dennis
-pip install -U dennis
+pip install -U GitflowDennis
 ```
 
 You'll need to run any `dennis` commands from within the Git project you wish to release.
