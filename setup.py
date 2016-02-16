@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 try:
@@ -12,7 +12,7 @@ setup(
     name='GitflowDennis',
     version='0.11.0',
     description='Dennis the release helper',
-    packages=['dennis'],
+    packages=find_packages(),
     long_description=README,
     author='Yannis Panousis',
     author_email='yannis@lystable.com',
