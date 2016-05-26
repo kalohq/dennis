@@ -87,3 +87,7 @@ python setup.py sdist upload -r pypitest
 ```
 python setup.py sdist upload -r pypi
 ```
+
+## License
+
+Apache 2.0. See LICENSE for details
