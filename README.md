@@ -2,7 +2,7 @@
 
 ## Quickstart
 
-- Checkout and Install:
+- Install:
 
 ```
 # Install sawyer
