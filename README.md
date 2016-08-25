@@ -1,64 +1,56 @@
 # Dennis -- helping to release and ship it
 
-## Quickstart
+## Install
 
-- Install:
-
+- This is **recommended** to be installed inside a [virtualenv](https://virtualenv.pypa.io/en/stable/installation/) and loaded using [virtualenvwrapper](http://virtualenvwrapper.readthedocs.io/en/latest/install.html#basic-installation), like this:
 ```
+# Install virtualenv
+pip install virtualenv virtualenvwrapper
+echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bashrc
+
+# Create a virtualenv for Dennis
+mkvirtualenv -p python3.5 "dennis"
+workon dennis
+
 # Install sawyer
 git clone https://github.com/lystable/sawyer sawyer
 cd sawyer
-python3 setup.py develop
+python setup.py develop
 
 # Install or Upgrade dennis
 pip install -U GitflowDennis
 ```
 
-You'll need to run any `dennis` commands from within the Git project you wish to release.
-
-- Prepare a release:
-
-```
-dennis prepare --type minor --user <your username>
-```
-
-- Draft a release:
-
-```
-dennis release --type minor --user <your username> --draft
-```
-
-This will not merge any PRs, but it's useful for ensuring the current release state is retrieved normally.
-
-- Complete a release:
-
-```
-dennis release --type minor --user <your username>
-```
-
 ## [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow)-esque Use Cases
+
+**You'll need to run any `dennis` commands from within the Git project you wish to release.**
 
 ### Create and Release a normal (minor) release
 ```
 # Step 1
-dennis prepare --type minor --user yannispanousis
+dennis prepare --type minor --user <Github username> --token <Github token>
 #
 # ... QA cycle ...
 #
 # Step 2
-dennis release --type minor --user yannispanousis
+dennis release --type minor --user <Github username> --token <Github token>
 ```
 
 ### Create and Release a hotfix
 
 ```
 # Step 1
-dennis prepare --type hotfix --user yannispanousis --branch <a published branch name>
+# Make sure you created your hotfix branch from "master" and not from "develop"
+
+# Step 2
+dennis prepare --type hotfix --user <Github username> --token <Github token> --branch <a published branch name>
+
 #
 # ... QA cycle ...
 #
-# Step 2
-dennis release --type hotfix --user yannispanousis
+
+# Step 3
+dennis release --type hotfix --user <Github username> --token <Github token>
 ```
 
 **Please Note:** `dennis` doesn't validate that this provided branch is based off master (which it should be, for hotfixes, according to GitFlow). So you must carefully inspect the release PR you will be creating and make sure there are no unwanted changes.
