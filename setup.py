@@ -24,7 +24,8 @@ setup(
         'PyGithub',
         'sawyer',
         'jinja2',
-        'coloredlogs'
+        'coloredlogs',
+        'python-dateutil'
     ],
     dependency_links=[
         'https://github.com/lystable/PyGithub/archive/ca6d43eb3b6ee14637940988fd4ac7eb3c207c79.zip#egg=PyGithub',
