@@ -5,8 +5,13 @@
 - This is **recommended** to be installed inside a [virtualenv](https://virtualenv.pypa.io/en/stable/installation/) and loaded using [virtualenvwrapper](http://virtualenvwrapper.readthedocs.io/en/latest/install.html#basic-installation), like this:
 ```
 # Install virtualenv
-pip install virtualenv virtualenvwrapper
-echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bashrc
+pip install --user virtualenv virtualenvwrapper
+
+# [Mac] Setup virtualenvwrapper
+echo "source ~/Library/Python/2.7/bin/virtualenvwrapper.sh" >> ~/.bashrc
+
+# [Ubuntu] Setup virtualenvwrapper
+echo "source ~/.local/bin/virtualenvwrapper.sh" >> ~/.bashrc
 
 # Create a virtualenv for Dennis
 mkvirtualenv -p python3.5 "dennis"
