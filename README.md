@@ -18,9 +18,7 @@ mkvirtualenv -p python3.5 "dennis"
 workon dennis
 
 # Install sawyer
-git clone https://github.com/lystable/sawyer sawyer
-cd sawyer
-python setup.py develop
+pip install -e git+git@github.com:lystable/sawyer.git#egg=sawyer
 
 # Install or Upgrade dennis
 pip install -U GitflowDennis
