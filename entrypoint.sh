@@ -1,10 +1,17 @@
 #!/bin/bash -x
-#
-# Copy SSH to ~/.ssh/id_rsa
-#
-mkdir -p ~/.ssh
-cp /host.ssh/id_rsa ~/.ssh/id_rsa
-chmod 600 ~/.ssh/id_rsa
+
+if [[ -z $OWNER ]]; then
+  OWNER=lystable
+fi
+
+if [[ -z $REPO ]]; then
+  echo 'You must set the REPO environment variable'
+  exit 1
+fi
+
+# Clone the repo if it's not cloned
+git clone https://github.com/$OWNER/$REPO.git /git/$REPO
 
 # Run dennis command
+cd /git/$REPO
 /usr/local/bin/dennis $@
