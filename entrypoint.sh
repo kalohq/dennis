@@ -2,7 +2,7 @@
 #
 # Copy SSH to ~/.ssh/id_rsa
 #
-mkdir -p
+mkdir -p ~/.ssh
 cp /host.ssh/id_rsa ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
 
