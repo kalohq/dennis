@@ -11,12 +11,13 @@ RUN apt-get -y install vim
 RUN git clone https://github.com/lystable/sawyer.git && cd sawyer && git checkout $SAWYER_TAG && python setup.py develop
 
 WORKDIR /dennis
-COPY . /dennis
-
+COPY requirements.txt /dennis/requirements.txt
 RUN pip install --user -r /dennis/requirements.txt
+
+COPY . /dennis
 RUN python setup.py develop
 RUN apt-get -y remove gcc && apt-get autoremove -y
 
 WORKDIR /git
 
-ENTRYPOINT ["/usr/local/bin/dennis"]
+ENTRYPOINT ["/dennis/entrypoint.sh"]
