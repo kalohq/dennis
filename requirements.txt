@@ -1,0 +1,6 @@
+PyGithub==1.32
+uritemplate.py==0.3.0
+GitPython==2.0.6
+Jinja2==2.8
+coloredlogs==5.0
+python-dateutil==2.5.3
