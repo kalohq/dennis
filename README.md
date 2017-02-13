@@ -7,12 +7,12 @@
 ### Create and Release a normal (minor) release
 ```
 # Step 1
-docker run --rm lystable/dennis prepare --type minor --user <Github username> --token <Github token>
+docker run --rm -v $PWD:/git lystable/dennis prepare --type minor --user <Github username> --token <Github token>
 #
 # ... QA cycle ...
 #
 # Step 2
-docker run --rm lystable/dennis release --type minor --user <Github username> --token <Github token>
+docker run --rm -v $PWD:/git lystable/dennis release --type minor --user <Github username> --token <Github token>
 ```
 
 ### Create and Release a hotfix
@@ -22,14 +22,14 @@ docker run --rm lystable/dennis release --type minor --user <Github username> --
 # Make sure you created your hotfix branch from "master" and not from "develop"
 
 # Step 2
-docker run --rm lystable/dennis prepare --type hotfix --user <Github username> --token <Github token> --branch <a published branch name>
+docker run --rm -v $PWD:/git lystable/dennis prepare --type hotfix --user <Github username> --token <Github token> --branch <a published branch name>
 
 #
 # ... QA cycle ...
 #
 
 # Step 3
-docker run --rm lystable/dennis release --type hotfix --user <Github username> --token <Github token>
+docker run --rm -v $PWD:/git lystable/dennis release --type hotfix --user <Github username> --token <Github token>
 ```
 
 **Please Note:** `dennis` doesn't validate that this provided branch is based off master (which it should be, for hotfixes, according to GitFlow). So you must carefully inspect the release PR you will be creating and make sure there are no unwanted changes.
@@ -40,7 +40,7 @@ docker run --rm lystable/dennis release --type hotfix --user <Github username> -
 - `dennis` does allow to override the version number and source branch from which the release is created, e.g.:
 
 ```
-docker run --rm lystable/dennis prepare --version v53.69.999 --branch feature/please-avoid-this-dangerous-workflow
+docker run --rm -v $PWD:/git lystable/dennis prepare --version v53.69.999 --branch feature/please-avoid-this-dangerous-workflow
 ```
 
 ## License
