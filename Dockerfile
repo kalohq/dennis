@@ -5,6 +5,7 @@ ENV SAWYER_TAG 7dfda7cc971274552c327116b124cf8e659a5228
 
 RUN apt-get update
 RUN apt-get install -y gcc git
+RUN mkdir -p ~/.ssh && ssh-keyscan github.com > ~/.ssh/known_hosts
 
 # Install Sawyer
 RUN apt-get -y install vim
