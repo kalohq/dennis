@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # Copy SSH to ~/.ssh/id_rsa
 #
