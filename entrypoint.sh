@@ -18,7 +18,7 @@ fi
 cd /git/$REPO
 
 # Add credentials to git cache
-echo "Adding credentials to Git cache..."
+echo "Adding your credentials to Git memory cache..."
 git push -u origin develop
 
 # Run dennis command
