@@ -1,3 +1,18 @@
+## [v0.15.0](https://github.com/lystable/dennis/tree/v0.15.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.14.0...v0.15.0)
+
+**Added**:
+
+- Release v0.14.0
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#76](https://github.com/lystable/dennis/pull/76/))
+- Dockerize dennis
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#72](https://github.com/lystable/dennis/pull/72/))
+
+
+
 ## [v0.14.0](https://github.com/lystable/dennis/tree/v0.14.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.13.0...v0.14.0)

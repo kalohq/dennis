@@ -1,32 +1,36 @@
 # Dennis -- helping to release and ship it
 
-## Install
+## Setup
 
-- This is **recommended** to be installed inside a [virtualenv](https://virtualenv.pypa.io/en/stable/installation/) and loaded using [virtualenvwrapper](http://virtualenvwrapper.readthedocs.io/en/latest/install.html#basic-installation), like this:
+- It's advised you use a cache directory so Dennis doesn't need to clone the repositories for every release.
+
 ```
-# Install virtualenv
-pip install --user virtualenv virtualenvwrapper
+mkdir -p ~/.dennis
+```
 
-# [Mac] Setup virtualenvwrapper
-echo "source ~/Library/Python/2.7/bin/virtualenvwrapper.sh" >> ~/.bashrc
+- You may benefit from either adding a Bash alias, or from creating a one-liner script within your project, for running the releases
 
-# [Ubuntu] Setup virtualenvwrapper
-echo "source ~/.local/bin/virtualenvwrapper.sh" >> ~/.bashrc
-
-# Create a virtualenv for Dennis
-mkvirtualenv -p python3.5 "dennis"
-workon dennis
-
-# Install sawyer
-pip install -e git+git@github.com:lystable/sawyer.git#egg=sawyer
-
-# Install or Upgrade dennis
-pip install -U GitflowDennis
+```
+# If you're using Bash
+echo "# Dennis release helper" >> ~/.bash_profile
+echo "alias dennis='docker run --rm -v ~/.dennis:/git -ti -e REPO=<repo name> -e OWNER=<owner name> lystable/dennis'" >> ~/.bash_profile
 ```
 
 ## [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow)-esque Use Cases
 
-**You'll need to run any `dennis` commands from within the Git project you wish to release.**
+You may run the release commands from any directory. Dennis maintains its own cache of cloned repositories, on its mounted volume.
+
+### Docker command
+
+The command should always be run with these settings:
+
+```
+docker run -v ~/.dennis:/git -ti -e REPO=<repo name> -e OWNER=<owner name, defaults to lystable> lystable/dennis
+```
+
+which is why it's recommended either to create a Bash alias, or, if you have multiple repositories to manage, to have a script within each one of them.
+
+Further down, we'll assume we have aliased the above options as 'dennis'.
 
 ### Create and Release a normal (minor) release
 ```
@@ -43,7 +47,7 @@ dennis release --type minor --user <Github username> --token <Github token>
 
 ```
 # Step 1
-# Make sure you created your hotfix branch from "master" and not from "develop"
+# Publish a branch onto Github, make sure you created it from "master" and not from "develop"
 
 # Step 2
 dennis prepare --type hotfix --user <Github username> --token <Github token> --branch <a published branch name>
@@ -56,8 +60,6 @@ dennis prepare --type hotfix --user <Github username> --token <Github token> --b
 dennis release --type hotfix --user <Github username> --token <Github token>
 ```
 
-**Please Note:** `dennis` doesn't validate that this provided branch is based off master (which it should be, for hotfixes, according to GitFlow). So you must carefully inspect the release PR you will be creating and make sure there are no unwanted changes.
-
 ## Extras
 
 - You'll be happy to hear that `dennis` acts in an idempotent fashion, so he'll try to pick up where he left off if there was a partial failure previously, for whatever reason
@@ -65,22 +67,6 @@ dennis release --type hotfix --user <Github username> --token <Github token>
 
 ```
 dennis prepare --version v53.69.999 --branch feature/please-avoid-this-dangerous-workflow
-```
-
-# PyPI Update
-
-Having followed this [guide](http://peterdowns.com/posts/first-time-with-pypi.html)
-
-## Test
-
-```
-python setup.py sdist upload -r pypitest
-```
-
-## Real
-
-```
-python setup.py sdist upload -r pypi
 ```
 
 ## License
