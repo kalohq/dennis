@@ -20,7 +20,7 @@ cd /git/$REPO
 if [[ -n $1 && ! $(echo "$@" | grep help) ]]; then
   # Add credentials to git cache
   echo "Adding your credentials to Git memory cache..."
-  git push -u origin develop &> /dev/null
+  git push -u origin develop &> /dev/null || true
 fi
 
 # Run dennis command
