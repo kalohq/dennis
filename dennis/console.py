@@ -6,7 +6,9 @@ import getpass
 
 import coloredlogs
 
-from . import tasks
+from .tasks import (
+    TASKS, RELEASE_TYPES, VERSION_REGEX
+)
 
 _log = logging.getLogger(__name__)
 
@@ -33,7 +35,7 @@ def main():
     parser.add_argument(
         '--type',
         default=None,
-        choices=tasks.RELEASE_TYPES,
+        choices=RELEASE_TYPES,
         help='Release type. Indicates which of'
         ' vX.Y.Z to increment (major = X, minor = Y, hotfix = Z).'
         ' \'hotfix\' will branch off master.'
@@ -132,7 +134,7 @@ def main():
     if args.version:
 
         if not re.match(
-            re.compile(tasks.VERSION_REGEX), args.version
+            re.compile(VERSION_REGEX), args.version
         ):
             _log.error(
                 'Provided version {} does not '
@@ -151,7 +153,7 @@ def main():
             else:
                 args.branch = 'develop'
 
-    task = tasks.TASKS[action](
+    task = TASKS[action](
         version=args.version,
         version_type=args.type,
         branch=args.branch,

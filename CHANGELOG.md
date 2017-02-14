@@ -1,3 +1,18 @@
+## [v0.12.0](https://github.com/lystable/dennis/tree/v0.12.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.11.0...v0.12.0)
+
+**Added**:
+
+- Updates README to include pip command
+  ([@zsoobhan](https://github.com/zsoobhan/)
+  in [\#69](https://github.com/lystable/dennis/pull/69/))
+- Release v0.11.0
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#61](https://github.com/lystable/dennis/pull/61/))
+
+
+
 ## [v0.11.0](https://github.com/lystable/dennis/tree/v0.11.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.10.0...v0.11.0)

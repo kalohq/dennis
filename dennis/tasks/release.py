@@ -43,8 +43,8 @@ class ReleaseTask(Task):
                 '\n\n\n'
                 'Alternatively, if you intended for a previous version,'
                 ' in project {}, then you can pick it up and finish the job'
-                ' by re-running "dennis release" with the option'
-                ' "--pickup <version>"'.format(self.repo_name)
+                ' by re-running "dennis release" with the correct'
+                ' "--type"'.format(self.repo_name)
             )
             return
 

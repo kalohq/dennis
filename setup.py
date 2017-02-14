@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 try:
@@ -10,9 +10,9 @@ except IOError:
 
 setup(
     name='GitflowDennis',
-    version='0.11.0',
+    version='0.12.0',
     description='Dennis the release helper',
-    packages=['dennis'],
+    packages=find_packages(),
     long_description=README,
     author='Yannis Panousis',
     author_email='yannis@lystable.com',
@@ -24,7 +24,8 @@ setup(
         'PyGithub',
         'sawyer',
         'jinja2',
-        'coloredlogs'
+        'coloredlogs',
+        'python-dateutil'
     ],
     dependency_links=[
         'https://github.com/lystable/PyGithub/archive/ca6d43eb3b6ee14637940988fd4ac7eb3c207c79.zip#egg=PyGithub',
