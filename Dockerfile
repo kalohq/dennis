@@ -14,11 +14,15 @@ RUN git clone https://github.com/lystable/sawyer.git && cd sawyer && git checkou
 WORKDIR /dennis
 COPY requirements.txt /dennis/requirements.txt
 RUN pip install --user -r /dennis/requirements.txt
+RUN pip install --user https://github.com/lystable/PyGithub/archive/ca6d43eb3b6ee14637940988fd4ac7eb3c207c79.zip#egg=PyGithub
+RUN apt-get -y remove gcc && apt-get autoremove -y
 
 COPY . /dennis
 RUN python setup.py develop
-RUN apt-get -y remove gcc && apt-get autoremove -y
 
 WORKDIR /git
+
+RUN git config --global credential.helper cache && \
+    git config --global credential.helper 'cache --timeout=3600'
 
 ENTRYPOINT ["/dennis/entrypoint.sh"]

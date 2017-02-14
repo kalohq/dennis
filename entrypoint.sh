@@ -9,8 +9,10 @@ if [[ -z $REPO ]]; then
   exit 1
 fi
 
-# Clone the repo if it's not cloned
-git clone https://github.com/$OWNER/$REPO.git /git/$REPO
+if [[ ! -d /git/$REPO ]]; then
+  # Clone the repo if it's not cloned
+  git clone https://github.com/$OWNER/$REPO.git /git/$REPO
+fi
 
 # Run dennis command
 cd /git/$REPO
