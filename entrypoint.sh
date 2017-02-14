@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -e
 
 if [[ -z $OWNER ]]; then
   OWNER=lystable
@@ -11,10 +11,15 @@ fi
 
 if [[ ! -d /git/$REPO ]]; then
   # Clone the repo if it's not cloned
-  git clone https://github.com/$OWNER/$REPO.git /git/$REPO
+  echo "Repo not found, cloning now..."
+  git clone -b develop https://github.com/$OWNER/$REPO.git /git/$REPO > /dev/null
 fi
 
-# Run dennis command
 cd /git/$REPO
-git remote set-url origin https://yannispanousis:$TOKEN@github.com/$OWNER/$REPO.git
+
+# Add credentials to git cache
+echo "Adding credentials to Git cache..."
+git push -u origin develop
+
+# Run dennis command
 /usr/local/bin/dennis $@

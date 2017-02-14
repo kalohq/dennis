@@ -23,6 +23,8 @@ RUN python setup.py develop
 WORKDIR /git
 
 RUN git config --global credential.helper cache && \
-    git config --global credential.helper 'cache --timeout=3600'
+    git config --global credential.helper 'cache --timeout=3600' && \
+    git config --global user.email example@test.com && \
+    git config --global user.name Me
 
 ENTRYPOINT ["/dennis/entrypoint.sh"]
