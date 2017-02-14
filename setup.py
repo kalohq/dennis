@@ -18,19 +18,6 @@ setup(
     author_email='yannis@lystable.com',
     url='https://github.com/lystable/dennis',
     license='MIT',
-    install_requires=[
-        'uritemplate.py',
-        'GitPython',
-        'PyGithub',
-        'sawyer',
-        'jinja2',
-        'coloredlogs',
-        'python-dateutil'
-    ],
-    dependency_links=[
-        'https://github.com/lystable/PyGithub/archive/ca6d43eb3b6ee14637940988fd4ac7eb3c207c79.zip#egg=PyGithub',
-        'https://github.com/lystable/sawyer/archive/develop.zip#egg=sawyer'
-    ],
     entry_points={
         'console_scripts': [
             'dennis = dennis.console:main',
