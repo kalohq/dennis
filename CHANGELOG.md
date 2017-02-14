@@ -1,3 +1,42 @@
+## [v0.14.0](https://github.com/lystable/dennis/tree/v0.14.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.13.0...v0.14.0)
+
+**Added**:
+
+- Release v0.13.0
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#75](https://github.com/lystable/dennis/pull/75/))
+
+
+
+## [v0.13.0](https://github.com/lystable/dennis/tree/v0.13.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.12.0...v0.13.0)
+
+**Added**:
+
+- Release v0.12.0
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#73](https://github.com/lystable/dennis/pull/73/))
+
+
+
+## [v0.12.0](https://github.com/lystable/dennis/tree/v0.12.0) (Unreleased)
+
+[Compare to previous release](https://github.com/lystable/dennis/compare/v0.11.0...v0.12.0)
+
+**Added**:
+
+- Updates README to include pip command
+  ([@zsoobhan](https://github.com/zsoobhan/)
+  in [\#69](https://github.com/lystable/dennis/pull/69/))
+- Release v0.11.0
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#61](https://github.com/lystable/dennis/pull/61/))
+
+
+
 ## [v0.11.0](https://github.com/lystable/dennis/tree/v0.11.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.10.0...v0.11.0)
