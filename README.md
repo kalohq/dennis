@@ -1,38 +1,64 @@
 # Dennis -- helping to release and ship it
 
+## Setup
+
+- It's advised you use a cache directory so Dennis doesn't need to clone the repositories for every release.
+
+```
+mkdir -p ~/git/dennis-cache
+```
+
+- You may benefit from either adding a Bash alias, or from creating a one-liner script within your project, for running the releases
+
+```
+# If you're using Bash
+echo "# Dennis release helper" >> ~/.bash_profile
+echo "alias dennis='docker run --rm -v ~/git/dennis-cache:/git -ti -e REPO=<repo name> -e OWNER=<owner name> lystable/dennis'" >> ~/.bash_profile
+```
+
 ## [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow)-esque Use Cases
 
-**You'll need to run any `dennis` commands from within the Git project you wish to release.**
+You may run the release commands from any directory. Dennis maintains its own cache of cloned repositories. on its mounted volume.
+
+### Docker command
+
+The command should always be run with these settings:
+
+```
+docker run -v ~/git/dennis-cache:/git -ti -e REPO=<repo name> -e OWNER=<owner name, defaults to lystable> lystable/dennis
+```
+
+which is why it's recommended either to create a Bash alias, or, if you have multiple repositories to manage, to have a script within each one of them.
+
+Further down, we'll assume we have aliased the above options as 'dennis'.
 
 ### Create and Release a normal (minor) release
 ```
 # Step 1
-docker run --rm -v $PWD:/git lystable/dennis prepare --type minor --user <Github username> --token <Github token>
+dennis prepare --type minor --user <Github username> --token <Github token>
 #
 # ... QA cycle ...
 #
 # Step 2
-docker run --rm -v $PWD:/git lystable/dennis release --type minor --user <Github username> --token <Github token>
+dennis release --type minor --user <Github username> --token <Github token>
 ```
 
 ### Create and Release a hotfix
 
 ```
 # Step 1
-# Make sure you created your hotfix branch from "master" and not from "develop"
+# Publish a branch onto Github, make sure you created it from "master" and not from "develop"
 
 # Step 2
-docker run --rm -v $PWD:/git lystable/dennis prepare --type hotfix --user <Github username> --token <Github token> --branch <a published branch name>
+dennis prepare --type hotfix --user <Github username> --token <Github token> --branch <a published branch name>
 
 #
 # ... QA cycle ...
 #
 
 # Step 3
-docker run --rm -v $PWD:/git lystable/dennis release --type hotfix --user <Github username> --token <Github token>
+dennis release --type hotfix --user <Github username> --token <Github token>
 ```
-
-**Please Note:** `dennis` doesn't validate that this provided branch is based off master (which it should be, for hotfixes, according to GitFlow). So you must carefully inspect the release PR you will be creating and make sure there are no unwanted changes.
 
 ## Extras
 
@@ -40,7 +66,7 @@ docker run --rm -v $PWD:/git lystable/dennis release --type hotfix --user <Githu
 - `dennis` does allow to override the version number and source branch from which the release is created, e.g.:
 
 ```
-docker run --rm -v $PWD:/git lystable/dennis prepare --version v53.69.999 --branch feature/please-avoid-this-dangerous-workflow
+dennis prepare --version v53.69.999 --branch feature/please-avoid-this-dangerous-workflow
 ```
 
 ## License
