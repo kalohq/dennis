@@ -16,4 +16,5 @@ fi
 
 # Run dennis command
 cd /git/$REPO
+git remote set-url origin https://yannispanousis:$TOKEN@github.com/$OWNER/$REPO.git
 /usr/local/bin/dennis $@
