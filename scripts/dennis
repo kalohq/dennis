@@ -1,2 +1,3 @@
 #!/bin/bash
-docker run --rm -v ~/git/dennis-cache:/git -ti -e REPO=dennis lystable/dennis $@
+mkdir -p ~/.dennis
+docker run --rm -v ~/.dennis:/git -ti -e REPO=dennis lystable/dennis $@
