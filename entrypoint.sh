@@ -17,9 +17,11 @@ fi
 
 cd /git/$REPO
 
-# Add credentials to git cache
-echo "Adding your credentials to Git memory cache..."
-git push -u origin develop
+if [[ -n $1 && ! $(echo "$@" | grep help) ]]; then
+  # Add credentials to git cache
+  echo "Adding your credentials to Git memory cache..."
+  git push -u origin develop
+fi
 
 # Run dennis command
 /usr/local/bin/dennis $@

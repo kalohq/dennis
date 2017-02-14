@@ -18,7 +18,7 @@ echo "alias dennis='docker run --rm -v ~/git/dennis-cache:/git -ti -e REPO=<repo
 
 ## [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow)-esque Use Cases
 
-You may run the release commands from any directory. Dennis maintains its own cache of cloned repositories. on its mounted volume.
+You may run the release commands from any directory. Dennis maintains its own cache of cloned repositories, on its mounted volume.
 
 ### Docker command
 

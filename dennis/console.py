@@ -70,13 +70,6 @@ def main():
     )
 
     parser.add_argument(
-        '--dir',
-        dest='project_dir',
-        default=None,
-        help='Project directory'
-    )
-
-    parser.add_argument(
         '--draft',
         dest='draft',
         action='store_true',
@@ -157,7 +150,6 @@ def main():
         version=args.version,
         version_type=args.type,
         branch=args.branch,
-        project_dir=args.project_dir,
         github_user=args.github_user,
         github_token=github_token,
         draft=args.draft,
