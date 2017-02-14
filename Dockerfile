@@ -24,7 +24,7 @@ WORKDIR /git
 
 RUN git config --global credential.helper cache && \
     git config --global credential.helper 'cache --timeout=3600' && \
-    git config --global user.email example@test.com && \
-    git config --global user.name Me
+    git config --global user.email dennis@lystable.com && \
+    git config --global user.name 'Dennis (Bot)'
 
 ENTRYPOINT ["/dennis/entrypoint.sh"]

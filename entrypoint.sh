@@ -9,13 +9,13 @@ if [[ -z $REPO ]]; then
   exit 1
 fi
 
-if [[ ! -d /git/$REPO ]]; then
+if [[ ! -d /git/$OWNER/$REPO ]]; then
   # Clone the repo if it's not cloned
   echo "Repo not found, cloning now..."
-  git clone -b develop https://github.com/$OWNER/$REPO.git /git/$REPO > /dev/null
+  git clone -b develop https://github.com/$OWNER/$REPO.git /git/$OWNER/$REPO > /dev/null
 fi
 
-cd /git/$REPO
+cd /git/$OWNER/$REPO
 
 if [[ -n $1 && ! $(echo "$@" | grep help) ]]; then
   # Add credentials to git cache
