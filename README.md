@@ -35,12 +35,12 @@ Further down, we'll assume we have aliased the above options as 'dennis'.
 ### Create and Release a normal (minor) release
 ```
 # Step 1
-dennis prepare --type minor --user <Github username> --token <Github token>
+please dennis prepare --type minor --user <Github username> --token <Github token>
 #
 # ... QA cycle ...
 #
 # Step 2
-dennis release --type minor --user <Github username> --token <Github token>
+please dennis release --type minor --user <Github username> --token <Github token>
 ```
 
 ### Create and Release a hotfix
@@ -50,14 +50,14 @@ dennis release --type minor --user <Github username> --token <Github token>
 # Publish a branch onto Github, make sure you created it from "master" and not from "develop"
 
 # Step 2
-dennis prepare --type hotfix --user <Github username> --token <Github token> --branch <a published branch name>
+please dennis prepare --type hotfix --user <Github username> --token <Github token> --branch <a published branch name>
 
 #
 # ... QA cycle ...
 #
 
 # Step 3
-dennis release --type hotfix --user <Github username> --token <Github token>
+please dennis release --type hotfix --user <Github username> --token <Github token>
 ```
 
 ## Extras
@@ -66,7 +66,7 @@ dennis release --type hotfix --user <Github username> --token <Github token>
 - `dennis` does allow to override the version number and source branch from which the release is created, e.g.:
 
 ```
-dennis prepare --version v53.69.999 --branch feature/please-avoid-this-dangerous-workflow
+please dennis prepare --version v53.69.999 --branch feature/please-avoid-this-dangerous-workflow
 ```
 
 ## License
