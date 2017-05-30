@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 if [[ -z $OWNER ]]; then
-  OWNER=lystable
+  OWNER=kalohq
 fi
 
 if [[ -z $REPO ]]; then

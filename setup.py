@@ -15,8 +15,8 @@ setup(
     packages=find_packages(),
     long_description=README,
     author='Yannis Panousis',
-    author_email='yannis@lystable.com',
-    url='https://github.com/lystable/dennis',
+    author_email='yannis@kalohq.com',
+    url='https://github.com/kalohq/dennis',
     license='MIT',
     entry_points={
         'console_scripts': [
