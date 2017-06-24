@@ -29,6 +29,7 @@ if [[ -n $1 && ! $(echo "$@" | grep help) && ! $(echo "$@" | grep '\-h') ]]; the
       fi
   done
 
+  git checkout develop
   if [[ -n $user && -n $token ]]; then
       # Pull with credentials in url to add them to credential cache
       repo_url=$(git config --get remote.origin.url)
