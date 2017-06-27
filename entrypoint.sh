@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 if [[ -z $OWNER ]]; then
-  OWNER=lystable
+  OWNER=kalohq
 fi
 
 if [[ -z $REPO ]]; then
@@ -17,10 +17,29 @@ fi
 
 cd /git/$OWNER/$REPO
 
-if [[ -n $1 && ! $(echo "$@" | grep help) ]]; then
-  # Add credentials to git cache
-  echo "Adding your credentials to Git memory cache..."
-  git push -u origin develop &> /dev/null || true
+if [[ -n $1 && ! $(echo "$@" | grep help) && ! $(echo "$@" | grep '\-h') ]]; then
+  # Add credentials to git cache if they were given on command line
+  args=("$@")
+  for i in "${!args[@]}"
+  do
+      if [ "${args[i]}" = "--user" ]; then
+          user=${args[i+1]}
+      elif [ "${args[i]}" = "--token" ]; then
+          token=${args[i+1]}
+      fi
+  done
+
+  git checkout develop
+  if [[ -n $user && -n $token ]]; then
+      # Pull with credentials in url to add them to credential cache
+      repo_url=$(git config --get remote.origin.url)
+      repo_url="https://${user}:${token}@${repo_url#https://}"
+      git pull $repo_url > /dev/null
+  fi
+
+  # Pull one more time because the pull above with the repository URL seems not
+  # to full fetch all remote branches in some cases.
+  git pull > /dev/null
 fi
 
 # Run dennis command

@@ -18,7 +18,7 @@ RELEASE_BRANCH_PATTERN = re.compile(
     '(origin/)?release/{}'.format(VERSION_REGEX)
 )
 
-# lystable/dennis.git
+# kalohq/dennis.git
 REPO_PATTERN = re.compile('([^/:]+/[^/\.]+)(.git)?$')
 
 

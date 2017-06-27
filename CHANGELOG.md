@@ -1,3 +1,18 @@
+## [v0.16.0](https://github.com/kalohq/dennis/tree/v0.16.0) (Unreleased)
+
+[Compare to previous release](https://github.com/kalohq/dennis/compare/v0.15.0...v0.16.0)
+
+**Added**:
+
+- Add credentials from command line to git cred cache
+  ([@j3r3miah](https://github.com/j3r3miah/)
+  in [\#82](https://github.com/kalohq/dennis/pull/82/))
+- Release v0.15.0
+  ([@yannispanousis](https://github.com/yannispanousis/)
+  in [\#81](https://github.com/kalohq/dennis/pull/81/))
+
+
+
 ## [v0.15.0](https://github.com/lystable/dennis/tree/v0.15.0) (Unreleased)
 
 [Compare to previous release](https://github.com/lystable/dennis/compare/v0.14.0...v0.15.0)
