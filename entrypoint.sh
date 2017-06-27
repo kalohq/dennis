@@ -35,11 +35,11 @@ if [[ -n $1 && ! $(echo "$@" | grep help) && ! $(echo "$@" | grep '\-h') ]]; the
       repo_url=$(git config --get remote.origin.url)
       repo_url="https://${user}:${token}@${repo_url#https://}"
       git pull $repo_url > /dev/null
-
-  else
-      # Resort to prompting user for credentials
-      git pull > /dev/null
   fi
+
+  # Pull one more time because the pull above with the repository URL seems not
+  # to full fetch all remote branches in some cases.
+  git pull > /dev/null
 fi
 
 # Run dennis command
