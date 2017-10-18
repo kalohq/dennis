@@ -26,7 +26,6 @@ class PrepareTask(Task):
 
         - Create new branch with new tag
         - Execute the release script release.sh
-        - Generate changelog
         - Commit changes and Push
         - Create PR into master
 
@@ -166,9 +165,6 @@ class PrepareTask(Task):
                         self.release_script_name))
 
         if not self.release:
-            # Generate the changelog
-            self._add_changelog(new_version)
-
             # Commit changes
             self._commit_all('Initial Release Commit')
 
@@ -213,46 +209,6 @@ class PrepareTask(Task):
                 release_pr.html_url
             )
         )
-
-    def _add_changelog(self, new_version):
-        sawyer_args = [
-            'sawyer', '-u',
-            self.github_user, '-q',
-            '-t', self.github_token,
-            '{}/{}'.format(self.repo_owner, self.repo_name),
-            self.last_version or 'v0.0.0',
-            new_version
-        ]
-
-        _log.info(
-            'Generating the changelog since the previous release.'
-            ' This can take a couple of minutes...'
-        )
-        output, success, return_code = run_command(
-            sawyer_args,
-            cwd=self.repo.working_dir
-        )
-
-        if not success:
-            sawyer_args[sawyer_args.index('-t')+1] = '********'
-            raise DennisException(
-                'Failed to generate changelog. Ran sawyer with:\n\n{}\n\n'
-                'and received error code {} with output:\n\n{}'.format(
-                    ' '.join(sawyer_args),
-                    return_code,
-                    output.decode('utf-8')
-                )
-            )
-
-        new_changelog = output.decode('utf-8')
-
-        # Prepend the new changelog entries
-        with open(self.changelog_path, 'r') as original:
-            original_changelog = original.read()
-        with open(self.changelog_path, 'w') as modified:
-            modified.write(new_changelog + '\n\n' + original_changelog)
-
-        return new_changelog
 
     def _does_local_branch_exist(self, name):
         return len([head for head in self.repo.heads if head.name == name]) > 0

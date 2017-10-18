@@ -19,8 +19,7 @@ class ReleaseTask(Task):
         - If no ongoing release, exit
         - Merge release PR into master if build passes
         - Checkout and pull release branch
-        - Pull out the changelog
-        - Create GitHub release using the latest changelog
+        - Create GitHub release
         - Merge master back into develop
 
     """
@@ -64,12 +63,6 @@ class ReleaseTask(Task):
         # Checkout release
         self._checkout_and_pull(self.release.name)
 
-        # Pull out changelog
-        changelog = self._get_release_changelog(
-            self.last_version, self.version,
-            self.repo_name, self.repo_owner
-        )
-
         # Get latest master commit ID
         self._checkout_and_pull('master')
         last_commit_id = self.repo.heads.master.commit.hexsha
@@ -95,7 +88,7 @@ class ReleaseTask(Task):
             release = self.github_repo.create_git_tag_and_release(
                 self.release.version,
                 '', format_release_pr_name(self.release.version),
-                changelog, last_commit_id, 'commit',
+                '', last_commit_id, 'commit',
                 target_commitish=last_commit_id
             )
             github_release_url = release.raw_data['html_url']
@@ -114,31 +107,3 @@ class ReleaseTask(Task):
                 format_release_pr_name(self.release.version),
                 github_release_url)
         )
-
-    def _get_release_changelog(
-        self, last_tag, new_tag, repo, owner
-    ):
-        # Integrate with sawyer so this line
-        # comes from the actual template used
-        FIRST_LINE_CHANGELOG_TEMPLATE = (
-            '## [{{ current_tag }}](https://github.com/{{ owner }}'
-            '/{{ repo }}/tree/{{ current_tag }})'
-        )
-
-        first_line_of_previous_release = jinja2_render(
-            {
-                'current_tag': last_tag,
-                'owner': owner,
-                'repo': repo
-            },
-            FIRST_LINE_CHANGELOG_TEMPLATE
-        )
-
-        release_changelog = ''
-        with open(self.changelog_path) as changelog_file:
-            for line in changelog_file:
-                if first_line_of_previous_release in line:
-                    break
-                release_changelog += line
-
-        return release_changelog

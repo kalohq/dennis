@@ -75,10 +75,6 @@ class Release:
 
 
 class Task:
-
-    changelog_name = 'CHANGELOG.md'
-    changelog_path = None
-
     repo_provider = None
 
     # Git object
@@ -161,10 +157,6 @@ class Task:
 
         # if not self.release:
         # self.last_release = self._get_release_artifacts(self.last_version)
-
-        self.changelog_path = os.path.join(
-            self.repo.working_dir, self.changelog_name
-        )
 
     def run(self):
         """Release process task."""
