@@ -36,7 +36,7 @@ class PrepareTask(Task):
     has_release_script = None
 
     def __init__(
-        self, branch=None, release_md=True, **kwargs
+        self, branch=None, **kwargs
     ):
         super().__init__(**kwargs)
 
@@ -80,7 +80,6 @@ class PrepareTask(Task):
             raise DennisException(message)
 
         self.branch = branch
-        self.release_md = release_md
 
         self.release_script_path = os.path.join(
             self.repo.working_dir, self.release_script_name
@@ -187,11 +186,6 @@ class PrepareTask(Task):
         # Create pull request
         if not (self.release and self.release.pr):
             release_pr_description = ''
-
-            if self.release_md:
-                with open('RELEASE.md', 'r') as release_md:
-                    release_pr_description = release_md.read()
-
             release_pr = self.github_repo.create_pull(
                 format_release_pr_name(new_version),
                 release_pr_description, 'master',
