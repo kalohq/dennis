@@ -263,16 +263,17 @@ class Task:
         )
 
     def _commit_all(self, message):
-        _log.info('Committing all changes: {}'.format(
+        _log.info('Committing changes: {}'.format(
             message
         ))
-        #
-        # Using the Git object as a last resort, couldn't
-        # find the equivalent inside the library
-        #
-        git.Git(self.repo.working_dir).execute(
-            ['git', 'commit', '-a', '-m', '"(dennis) {}"'.format(message)]
-        )
+        try:
+            # Using the Git object as a last resort, couldn't
+            # find the equivalent inside the library
+            git.Git(self.repo.working_dir).execute(
+                ['git', 'commit', '-a', '-m', '"(dennis) {}"'.format(message)]
+            )
+        except git.exc.GitCommandError:
+            _log.info('No changes to commit')
 
     def _branch_contains_commit(self, branch, commit):
         output = git.Git(self.repo.working_dir).execute(
