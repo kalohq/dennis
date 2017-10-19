@@ -18,16 +18,20 @@ ALLOWED_BRANCHES = {
     'minor': ['develop'],
     'hotfix': ['master']
 }
-PR_DESCRIPTION = """
-![]({})
-
-We’re on our way to a much simpler release process. This release branch is therefore minimal. I’m not making any changes here. It’s still fine for you to make some last-minute tweaks, but remember – soon that chance is going away, because release branches will no longer be a thing.
-
-Here’s my advice though. Make sure your code is ready to go by the time you merge it to develop. Soon there will be no other way!
-
-Yours sincerely,
-Dennis (Bot)
-"""
+PR_DESCRIPTION = (
+    '![]({})'
+    '\n\n'
+    'We’re on our way to a much simpler release process. This release branch'
+    ' is therefore minimal. I’m not making any changes here. It’s still fine'
+    ' for you to make some last-minute tweaks, but remember – soon that chance'
+    ' is going away, because release branches will no longer be a thing.'
+    '\n\n'
+    'Here’s my advice though. Make sure your code is ready to go by the time'
+    ' you merge it to develop. Soon there will be no other way!'
+    '\n\n'
+    'Yours sincerely,'
+    '\nDennis (Bot)'
+)
 
 
 class PrepareTask(Task):
