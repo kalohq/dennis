@@ -64,12 +64,18 @@ class ReleaseTask(Task):
                 'develop', 'master', '(dennis) Master back into Develop'
             )
 
+        # Delete release branch
+        _log.info('Deleting release branch')
+        self.repo.delete_head(self.release.name)
+        self.repo.remotes.origin.push(':{}'.format(self.release.name))
+
         # Switch back to develop
         self._checkout_and_pull('develop')
 
         # Done
         _log.info(
-            '{} release is merged into master and develop has been updated.'.format(
+            'Your {} release is merged into master and develop has been'
+            ' updated.'.format(
                 format_release_pr_name(self.release.version_type),
             )
         )
