@@ -52,9 +52,6 @@ class Release:
     # (Release Artifact) Release PR object
     pr = None
 
-    # (Release Artifact) GitHub release object
-    github_release = None
-
     # (Release Artifact) Is merged back into develop
     merged_back = False
 
@@ -69,8 +66,7 @@ class Release:
         return (
             all([
                 self.branch,
-                self.merged_back,
-                self.github_release])
+                self.merged_back])
         )
 
 
@@ -188,11 +184,6 @@ class Task:
             'develop', last_commit
         )
 
-        _log.info('\t- GitHub release...')
-        release.github_release = self._get_github_release(
-            release.version
-        )
-
         return release
 
     def _get_latest_tag(self):
@@ -238,12 +229,6 @@ class Task:
         pr_number = int(pr_data['url'].split('/')[-1])
 
         return self.github_repo.get_pull(pr_number)
-
-    def _get_github_release(self, tag):
-        try:
-            return self.github_repo.get_release(tag)
-        except:
-            return None
 
     def _checkout(self, name):
         try:
