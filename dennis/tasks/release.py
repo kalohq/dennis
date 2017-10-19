@@ -58,18 +58,14 @@ class ReleaseTask(Task):
             if merged:
                 _log.info('Release PR is merged')
 
-        # Checkout release
-        self._checkout_and_pull(self.release.name)
-
-        # Get latest master commit ID
-        self._checkout_and_pull('master')
-        last_commit_id = self.repo.heads.master.commit.hexsha
-
         # Merge master into develop
         if not self.release.merged_back:
             self._merge_branches(
                 'develop', 'master', '(dennis) Master back into Develop'
             )
+
+        # Switch back to develop
+        self._checkout_and_pull('develop')
 
         # Done
         _log.info(
