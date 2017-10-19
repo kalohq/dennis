@@ -1,5 +1,6 @@
 import os
 import logging
+import random
 
 from .utils import (
     run_command,
@@ -18,6 +19,16 @@ ALLOWED_BRANCHES = {
     'minor': ['develop'],
     'hotfix': ['master']
 }
+PR_DESCRIPTION = """
+![]({})
+
+We’re on our way to a much simpler release process. This release branch is therefore minimal. I’m not making any changes here. It’s still fine for you to make some last-minute tweaks, but remember – soon that chance is going away, because release branches will no longer be a thing.
+
+Here’s my advice though. Make sure your code is ready to go by the time you merge it. Soon there will be no other way!
+
+Yours sincerely,
+Dennis (Bot)
+"""
 
 
 class PrepareTask(Task):
@@ -185,7 +196,19 @@ class PrepareTask(Task):
 
         # Create pull request
         if not (self.release and self.release.pr):
-            release_pr_description = ''
+            release_pr_description = PR_DESCRIPTION.format(random.choice([
+                'https://media.giphy.com/media/3o6Ztp6zm4ZYI068cE/giphy.gif',
+                'https://media.giphy.com/media/3o6Ztn3DaJ41FDHVwA/giphy.gif',
+                'https://media.giphy.com/media/l0HlFwETpLZyast9u/giphy.gif',
+                'https://media.giphy.com/media/l0HlTP1jCtsx1Xl4s/giphy.gif',
+                'https://media.giphy.com/media/l0HlIT8WBMsYENnG0/giphy.gif',
+                'https://media.giphy.com/media/l0HlHnIwSCFBq2ySQ/giphy.gif',
+                'https://media.giphy.com/media/3o6Zt51xm4FZJcBy7e/giphy.gif',
+                'https://media.giphy.com/media/3o6ZtmFYFy93Lg1LwI/giphy.gif',
+                'https://media.giphy.com/media/eK3GNqMBif63C/giphy.gif',
+                'https://media.giphy.com/media/d1FKUVRyHv9Sgy64/giphy.gif',
+                'https://media.giphy.com/media/xT0Gqhj8PKdH1ipCF2/giphy.gif',
+            ]))
             release_pr = self.github_repo.create_pull(
                 format_release_pr_name(new_version),
                 release_pr_description, 'master',
