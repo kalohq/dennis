@@ -6,9 +6,10 @@ import github
 import logging
 
 from .utils import (
-    version_key, DennisException,
-    VERSION_REGEX, get_next_version_options,
-    format_release_branch_name, format_release_pr_name
+    DennisException,
+    VERSION_REGEX,
+    format_release_branch_name,
+    format_release_pr_name
 )
 
 _log = logging.getLogger(__name__)
@@ -39,10 +40,6 @@ def wait_while_result_satisfies(
 
 
 class Release:
-
-    # Release version
-    version = None
-
     # Release branch name
     name = None
 
@@ -55,9 +52,9 @@ class Release:
     # (Release Artifact) Is merged back into develop
     merged_back = False
 
-    def __init__(self, version):
-        self.version = version
-        self.name = format_release_branch_name(version)
+    def __init__(self, version_type):
+        self.name = format_release_branch_name(version_type)
+        self.version_type = version_type
 
     def is_started(self):
         return self.branch is not None
@@ -88,33 +85,33 @@ class Task:
     # Whether this is a draft run
     draft = False
 
-    # Current release version
-    version = None
-
-    # Last release version
+    # Last release SHA
     last_version = None
 
     # Current release artifacts
     release = None
 
-    # Last release artifacts
-    # last_release = None
+    # Type of release
+    version_type = None
 
     def __init__(
-        self, github_user=None, pickup=None,
-        github_token=None, project_dir=os.getcwd(),
-        version=None, version_type=None,
-        draft=False, **kwargs
+        self,
+        github_user=None,
+        pickup=None,
+        github_token=None,
+        project_dir=os.getcwd(),
+        version_type=None,
+        draft=False,
+        **kwargs
     ):
         self.repo = git.Repo(project_dir)
-
         self.github_user = github_user
         self.github_token = github_token
         self.draft = draft
+        self.version_type = version_type
 
         repo_url = self.repo.remotes.origin. \
             config_reader.config.get('remote "origin"', 'url')
-
         self.repo_name = re.search(REPO_PATTERN, repo_url).groups()[0]
 
         self.github_repo = github.Github(
@@ -124,81 +121,54 @@ class Task:
         self.repo_owner = self.github_repo.owner.login
         self.repo_name = self.github_repo.name
 
-        # Checkout latest changes for this repo
+        # Check out latest released state
+        _log.info('Checking out and pulling master')
+        self._checkout_and_pull('master')
+        last_release_sha = self.repo.heads.master.commit.hexsha
+
+        # Check out latest changes for this repo
         _log.info('Checking out and pulling develop')
         self._checkout_and_pull('develop')
 
-        last_tag = self._get_latest_tag()
-
-        if not last_tag:
-            raise DennisException(
-                'dennis cannot yet handle projects without at least'
-                ' one tag, sorry!'
-            )
-
-        _log.info('Last release version in {}: {}'.format(
-            self.repo_name, last_tag.name
+        self.last_version = last_release_sha
+        _log.info('Last release SHA in {}: {}'.format(
+            self.repo_name, self.last_version
         ))
 
-        self.last_version = last_tag.name
-        self.version = version
-
-        # Set version based on version type if needed
-        if version is None and version_type is not None:
-            self.version = get_next_version_options(
-                self.last_version
-            )[version_type]
-
-        self.release = self._get_release_artifacts(self.version)
-
-        # if not self.release:
-        # self.last_release = self._get_release_artifacts(self.last_version)
+        self.release = self._get_release_artifacts(version_type)
 
     def run(self):
         """Release process task."""
         raise NotImplementedError
 
-    def _get_release_artifacts(self, version):
-        release = Release(version)
+    def _get_release_artifacts(self, version_type):
+        release = Release(version_type)
 
         _log.info(
             'Gathering release artifacts'
-            ' in project {} for version {}:'.format(
-                self.repo_name, release.version)
+            ' in project {} for {} release:'.format(
+                self.repo_name, version_type)
         )
 
         _log.info('\t- release branch...')
         release.branch = self._get_branch(release.name)
-
         if not release.branch:
             return None
 
         _log.info('\t- release PR...')
         release.pr = self._get_open_pr(
-            format_release_pr_name(release.version)
+            format_release_pr_name(version_type)
         )
 
         _log.info('\t- is release merged back into develop...')
-        last_commit = self.repo.remotes.origin.fetch(refspec='master')[0].commit.hexsha
+        last_commit = (
+            self.repo.remotes.origin.fetch(refspec='master')[0].commit.hexsha
+        )
         release.merged_back = self._branch_contains_commit(
             'develop', last_commit
         )
 
         return release
-
-    def _get_latest_tag(self):
-        tags = self.repo.tags.copy()
-
-        tags.sort(
-            key=lambda tag: (
-                    version_key(tag.name.strip('v'))
-                )
-        )
-
-        if not any(tags):
-            return None
-
-        return tags[-1]
 
     def _get_branch(self, name):
         try:

@@ -30,16 +30,15 @@ class ReleaseTask(Task):
         self.wait_for_minutes = wait_for_minutes
 
     def run(self):
-
         if not self.release:
             _log.warn(
-                'Could not find an ongoing release for {} at version {}.'
+                'Could not find an ongoing {} release for {}.'
                 ' Perhaps you haven\'t run "dennis prepare" yet?'
-                .format(self.repo_name, self.version)
+                .format(self.version_type, self.repo_name)
             )
             _log.warn(
                 '\n\n\n'
-                'Alternatively, if you intended for a previous version,'
+                'Alternatively, if you meant a different release type,'
                 ' in project {}, then you can pick it up and finish the job'
                 ' by re-running "dennis release" with the correct'
                 ' "--type"'.format(self.repo_name)
@@ -74,7 +73,7 @@ class ReleaseTask(Task):
 
         # Done
         _log.info(
-            '{} is merged into master and develop has been updated.'.format(
-                format_release_pr_name(self.release.version),
+            '{} release is merged into master and develop has been updated.'.format(
+                format_release_pr_name(self.release.version_type),
             )
         )

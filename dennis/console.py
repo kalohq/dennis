@@ -39,14 +39,6 @@ def main():
         help='Release type. Indicates which of'
         ' vX.Y.Z to increment (major = X, minor = Y, hotfix = Z).'
         ' \'hotfix\' will branch off master.'
-        ' Option is ignored if --version is provided.'
-    )
-
-    parser.add_argument(
-        '--version',
-        default=None,
-        help='Release version in the format vX.Y.Z. Overrides --type.'
-        ' Will branch off master by default, use --branch to override.'
     )
 
     parser.add_argument(
@@ -93,52 +85,21 @@ def main():
         _log.error('GitHub username argument --user must be provided')
         sys.exit(1)
 
-    if not args.type and not args.version:
-        _log.error(
-            'One of release type --type or'
-            ' release version --version must be provided'
-        )
+    if not args.type:
+        _log.error('--type must be provided')
         sys.exit(1)
-
-    if args.version:
-        args.type = None
-
-    if args.version and not args.branch:
-        _log.warn(
-            'You specified --version, the default is to use the'
-            ' \'master\' branch for the new release branch. Use '
-            '--branch if you wish to override this.'
-        )
 
     github_token = args.github_token or getpass.getpass()
 
     action = args.action
 
-    # Either --version is specified
-    if args.version:
-
-        if not re.match(
-            re.compile(VERSION_REGEX), args.version
-        ):
-            _log.error(
-                'Provided version {} does not '
-                'conform with format "vX.Y.Z"'.format(
-                    args.version
-                )
-            )
-            sys.exit(1)
-        args.branch = args.branch or 'master'
-
-    # Or --version-type is specified
-    elif args.type:
-        if not args.branch:
-            if args.type == 'hotfix':
-                args.branch = 'master'
-            else:
-                args.branch = 'develop'
+    if not args.branch:
+        if args.type == 'hotfix':
+            args.branch = 'master'
+        else:
+            args.branch = 'develop'
 
     task = TASKS[action](
-        version=args.version,
         version_type=args.type,
         branch=args.branch,
         github_user=args.github_user,

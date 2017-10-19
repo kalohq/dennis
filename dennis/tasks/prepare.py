@@ -4,7 +4,6 @@ import random
 
 from .utils import (
     run_command,
-    get_next_version_options,
     DennisException,
     format_release_branch_name,
     format_release_pr_name
@@ -51,40 +50,19 @@ class PrepareTask(Task):
     ):
         super().__init__(**kwargs)
 
-        # Validate branch value against planned version value
-        next_version_options = get_next_version_options(self.last_version)
-        release_type = [
-            release_type
-            for release_type, release_version in next_version_options.items()
-            if release_version == self.version
-        ]
-
-        # Validate the version upgrading to is one of the
-        # expected next versions
-        if not any(release_type):
-            message = (
-                'The version you are trying to upgrade to ({})'
-                ' is not one of the expected next versions: {}'.format(
-                    self.version, list(next_version_options.values())
-                )
-            )
-            _log.error(message)
-            raise DennisException(message)
-
-        release_type = release_type[0]
-
         # Validate the source branch being used for the new release branch
         # is one of the expected branches for this release type
         if not branch == 'develop':
             ALLOWED_BRANCHES['hotfix'].append(branch)
-        if branch not in ALLOWED_BRANCHES[release_type]:
+        if branch not in ALLOWED_BRANCHES[self.version_type]:
             message = (
-                'With a release type "{}" ({} -> {}) you are not allowed'
+                'With a release type "{}" you are not allowed'
                 ' to branch off "{}". The branches you can use are: {}.'
                 ' If you are creating a hotfix, you may use master or any'
                 ' non-develop branch'.format(
-                    release_type, self.last_version, self.version,
-                    branch, ALLOWED_BRANCHES[release_type]
+                    self.release_type,
+                    branch,
+                    ALLOWED_BRANCHES[self.release_type]
                 )
             )
             _log.error(message)
@@ -104,15 +82,12 @@ class PrepareTask(Task):
                 ' to cover any missed steps'
             )
 
-        # Get new version
-        new_version = self.version
-
         # Release branch name
         if self.release:
             release_branch_name = self.release.name
         else:
             release_branch_name = format_release_branch_name(
-                new_version
+                self.version_type
             )
 
         # If local branch exists
@@ -135,8 +110,8 @@ class PrepareTask(Task):
 
         # Create release branch
         if not (self.release and self.release.branch):
-            _log.info('Creating new release branch with version {}'.format(
-                new_version
+            _log.info('Creating new branch for {} release'.format(
+                self.version_type
             ))
             release_branch = self.repo.create_head(release_branch_name)
         else:
@@ -147,7 +122,7 @@ class PrepareTask(Task):
             release_branch_name))
         self._checkout(release_branch_name)
 
-        # Bump the version etc.
+        # Run the release script
         if not self.release:
             if self.has_release_script:
                 _log.info('Running {} script inside {}'.format(
@@ -156,8 +131,7 @@ class PrepareTask(Task):
                 output, success, return_code = run_command(
                     [
                         self.release_script_path,
-                        self.last_version,
-                        new_version
+                        self.last_version
                     ],
                     cwd=self.repo.working_dir
                 )
@@ -210,7 +184,7 @@ class PrepareTask(Task):
                 'https://media.giphy.com/media/xT0Gqhj8PKdH1ipCF2/giphy.gif',
             ]))
             release_pr = self.github_repo.create_pull(
-                format_release_pr_name(new_version),
+                format_release_pr_name(self.version_type),
                 release_pr_description, 'master',
                 self.repo.active_branch.name
             )
