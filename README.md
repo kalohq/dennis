@@ -1,3 +1,9 @@
+# ⚠️ deprecation notice ⚠️
+
+This project is deprecated. As part of moving towards a continuous delivery workflow, we’ve removed many features of dennis. **It no longer does what the readme says.**
+
+If you want to take over the maintenance of the project, [get in touch](https://github.com/kalohq/dennis/issues/new)! ✌️
+
 # Dennis -- helping to release and ship it
 
 ## Setup
