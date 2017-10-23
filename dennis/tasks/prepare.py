@@ -175,7 +175,6 @@ class PrepareTask(Task):
         # Create pull request
         if not (self.release and self.release.pr):
             release_pr_description = PR_DESCRIPTION.format(random.choice([
-                'https://media.giphy.com/media/3o6Ztp6zm4ZYI068cE/giphy.gif',
                 'https://media.giphy.com/media/3o6Ztn3DaJ41FDHVwA/giphy.gif',
                 'https://media.giphy.com/media/l0HlFwETpLZyast9u/giphy.gif',
                 'https://media.giphy.com/media/l0HlTP1jCtsx1Xl4s/giphy.gif',
