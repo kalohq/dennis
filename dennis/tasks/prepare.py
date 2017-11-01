@@ -47,7 +47,6 @@ class PrepareTask(Task):
 
     release_script_path = None
     release_script_name = 'release'
-    has_release_script = None
 
     def __init__(
         self, branch=None, **kwargs
@@ -77,7 +76,6 @@ class PrepareTask(Task):
         self.release_script_path = os.path.join(
             self.repo.working_dir, self.release_script_name
         )
-        self.has_release_script = os.path.isfile(self.release_script_path)
 
     def run(self):
         if self.release:
@@ -128,7 +126,7 @@ class PrepareTask(Task):
 
         # Run the release script
         if not self.release:
-            if self.has_release_script:
+            if os.path.isfile(self.release_script_path):
                 _log.info('Running {} script inside {}'.format(
                     self.release_script_name, self.repo_name
                 ))
