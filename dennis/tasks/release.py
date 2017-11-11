@@ -68,13 +68,13 @@ class ReleaseTask(Task):
                 'develop', 'master', '(dennis) Master back into Develop'
             )
 
+        # Switch back to develop
+        self._checkout_and_pull('develop')
+
         # Delete release branch
         _log.info('Deleting release branch')
         self.repo.delete_head(self.release.name)
         self.repo.remotes.origin.push(':{}'.format(self.release.name))
-
-        # Switch back to develop
-        self._checkout_and_pull('develop')
 
         # Done
         _log.info(
