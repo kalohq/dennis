@@ -59,7 +59,11 @@ class ReleaseTask(Task):
                 _log.info('Release PR is merged')
 
         # Merge master into develop
-        if not self.release.merged_back:
+        _log.info('\t- is release merged back into develop...')
+        last_commit = (
+            self.repo.remotes.origin.fetch(refspec='master')[0].commit.hexsha
+        )
+        if not self._branch_contains_commit('develop', last_commit):
             self._merge_branches(
                 'develop', 'master', '(dennis) Master back into Develop'
             )

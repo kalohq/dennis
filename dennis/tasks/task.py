@@ -49,22 +49,12 @@ class Release:
     # (Release Artifact) Release PR object
     pr = None
 
-    # (Release Artifact) Is merged back into develop
-    merged_back = False
-
     def __init__(self, version_type):
         self.name = format_release_branch_name(version_type)
         self.version_type = version_type
 
     def is_started(self):
         return self.branch is not None
-
-    def is_complete(self):
-        return (
-            all([
-                self.branch,
-                self.merged_back])
-        )
 
 
 class Task:
@@ -158,14 +148,6 @@ class Task:
         _log.info('\t- release PR...')
         release.pr = self._get_open_pr(
             format_release_pr_name(version_type)
-        )
-
-        _log.info('\t- is release merged back into develop...')
-        last_commit = (
-            self.repo.remotes.origin.fetch(refspec='master')[0].commit.hexsha
-        )
-        release.merged_back = self._branch_contains_commit(
-            'develop', last_commit
         )
 
         return release
