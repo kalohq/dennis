@@ -74,13 +74,20 @@ class ReleaseTask(Task):
 
         # Delete release branch
         _log.info('Deleting release branch')
+
         try:
             self.repo.delete_head(self.release.name)
         except GitCommandError:
             _log.info(
-                'Nothing to delete, release branch wasn’t present locally'
+                'Nothing to delete locally, release branch wasn’t present'
             )
-        self.repo.remotes.origin.push(':{}'.format(self.release.name))
+
+        try:
+            self.repo.remotes.origin.push(':{}'.format(self.release.name))
+        except GitCommandError:
+            _log.info(
+                'Nothing to delete remotely, release branch wasn’t present'
+            )
 
         # Done
         _log.info(
