@@ -4,6 +4,7 @@ from jinja2 import Template
 
 from .task import Task
 from .utils import format_release_pr_name
+from git.exc import GitCommandError
 
 _log = logging.getLogger(__name__)
 
@@ -73,7 +74,12 @@ class ReleaseTask(Task):
 
         # Delete release branch
         _log.info('Deleting release branch')
-        self.repo.delete_head(self.release.name)
+        try:
+            self.repo.delete_head(self.release.name)
+        except GitCommandError:
+            _log.info(
+                'Nothing to delete, release branch wasn’t present locally'
+            )
         self.repo.remotes.origin.push(':{}'.format(self.release.name))
 
         # Done
