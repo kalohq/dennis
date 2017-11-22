@@ -182,7 +182,6 @@ class PrepareTask(Task):
                 'https://media.giphy.com/media/3o6ZtmFYFy93Lg1LwI/giphy.gif',
                 'https://media.giphy.com/media/eK3GNqMBif63C/giphy.gif',
                 'https://media.giphy.com/media/d1FKUVRyHv9Sgy64/giphy.gif',
-                'https://media.giphy.com/media/xT0Gqhj8PKdH1ipCF2/giphy.gif',
             ]))
             release_pr = self.github_repo.create_pull(
                 format_release_pr_name(self.version_type),
